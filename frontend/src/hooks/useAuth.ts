@@ -27,6 +27,7 @@ export const useAuth = () => {
     try {
       setIsLoading(true);
       setError(null);
+      console.log('useAuth login called with:', data);
       const response = await apiService.login(data);
 
       // Tạo user object mẫu (trong thực tế sẽ lấy từ API)
@@ -41,6 +42,7 @@ export const useAuth = () => {
       return response;
     } catch (err) {
       const axiosError = err as AxiosError;
+      console.error('Login error:', err);
       const errorMessage =
         axiosError.response?.data?.detail || 'Đăng nhập thất bại';
       setError(errorMessage);

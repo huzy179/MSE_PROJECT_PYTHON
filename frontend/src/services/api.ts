@@ -7,7 +7,7 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: 'http://localhost:8000',
+      baseURL: 'http://localhost:8000/api',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -46,12 +46,14 @@ class ApiService {
 
   // Auth methods
   async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await this.api.post<AuthResponse>('/login', data);
+    console.log('Sending login request with data:', data);
+    const response = await this.api.post<AuthResponse>('/v1/auth/login', data);
+    console.log('Login response:', response.data);
     return response.data;
   }
 
   async register(data: RegisterRequest): Promise<void> {
-    await this.api.post('/register', data);
+    await this.api.post('/v1/auth/register', data);
   }
 
   // Generic methods for future use
