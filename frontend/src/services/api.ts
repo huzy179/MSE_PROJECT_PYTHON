@@ -1,6 +1,12 @@
 // frontend/src/api.ts
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
-import type { LoginRequest, RegisterRequest, AuthResponse } from '../types';
+import type {
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+  UserListParams,
+  UserListResponse,
+} from '../types';
 
 class ApiService {
   private readonly api: AxiosInstance;
@@ -46,14 +52,26 @@ class ApiService {
 
   // Auth methods
   async login(data: LoginRequest): Promise<AuthResponse> {
-    console.log('Sending login request with data:', data);
     const response = await this.api.post<AuthResponse>('/v1/auth/login', data);
-    console.log('Login response:', response.data);
     return response.data;
   }
 
   async register(data: RegisterRequest): Promise<void> {
     await this.api.post('/v1/auth/register', data);
+  }
+
+  // User management methods
+  async getUsers(params?: UserListParams): Promise<UserListResponse> {
+    const response = await this.api.get<UserListResponse>('/v1/users', { params });
+    return response.data;
+  }
+
+  async softDeleteUser(userId: number): Promise<void> {
+    await this.api.delete(`/v1/users/${userId}`);
+  }
+
+  async restoreUser(userId: number): Promise<void> {
+    await this.api.patch(`/v1/users/${userId}/restore`);
   }
 
   // Generic methods for future use

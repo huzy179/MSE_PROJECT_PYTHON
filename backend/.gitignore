@@ -114,7 +114,6 @@ dmypy.json
 *.swp
 *.swo
 *~
-
 # macOS
 .DS_Store
 
@@ -125,3 +124,4 @@ dmypy.json
 # Logs
 logs/
 *.log
+

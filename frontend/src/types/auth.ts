@@ -12,12 +12,34 @@ export interface RegisterRequest {
 export interface AuthResponse {
   access_token: string;
   token_type: string;
+  user: User; // Thêm thông tin user vào response
 }
 
 export interface User {
   id: number;
   username: string;
+  role: string;
   created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
+  is_deleted?: boolean;
+}
+
+// User management types
+export interface UserListParams {
+  include_deleted?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface UserListResponse {
+  data: User[];
+  pagination: {
+    page: number;
+    size: number;
+    total: number;
+    pages: number;
+  };
 }
 
 // API response types

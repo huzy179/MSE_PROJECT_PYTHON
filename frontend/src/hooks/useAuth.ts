@@ -27,22 +27,14 @@ export const useAuth = () => {
     try {
       setIsLoading(true);
       setError(null);
-      console.log('useAuth login called with:', data);
       const response = await apiService.login(data);
 
-      // Tạo user object mẫu (trong thực tế sẽ lấy từ API)
-      const userData = {
-        id: 1,
-        username: data.username,
-        created_at: new Date().toISOString(),
-      };
-
-      contextLogin(response.access_token, userData);
+      // Sử dụng thông tin user từ API response
+      contextLogin(response.access_token, response.user);
       navigate('/dashboard');
       return response;
     } catch (err) {
       const axiosError = err as AxiosError;
-      console.error('Login error:', err);
       const errorMessage =
         axiosError.response?.data?.detail || 'Đăng nhập thất bại';
       setError(errorMessage);
