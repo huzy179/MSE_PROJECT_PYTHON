@@ -75,19 +75,12 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-class UserLoginOut(UserBase):
-    id: int
-    role: str
-    created_at: datetime
-    is_deleted: bool
 
-    class Config:
-        from_attributes = True
 
 class LoginResponse(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
-    user: UserLoginOut
 
 class TokenData(BaseModel):
     username: Optional[str] = None

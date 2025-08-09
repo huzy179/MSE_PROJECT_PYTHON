@@ -4,6 +4,7 @@ import type {
   LoginRequest,
   RegisterRequest,
   AuthResponse,
+  User,
   UserListParams,
   UserListResponse,
 } from '../types';
@@ -22,13 +23,19 @@ class ApiService {
     // Request interceptor to add token
     this.api.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+        const access_token = localStorage.getItem('access_token');
+        console.log('🟠 API Request interceptor - token:', access_token?.substring(0, 20) + '...');
+        if (access_token) {
+          config.headers.Authorization = `Bearer ${access_token}`;
+          console.log('🟠 API Request interceptor - Authorization header set');
+        } else {
+          console.log('🔴 API Request interceptor - No token found');
         }
+        console.log('🟠 API Request interceptor - URL:', config.url);
         return config;
       },
       (error) => {
+        console.error('🔴 API Request interceptor error:', error);
         return Promise.reject(
           error instanceof Error ? error : new Error(String(error))
         );
@@ -40,7 +47,9 @@ class ApiService {
       (response: AxiosResponse) => response,
       (error) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user');
           window.location.href = '/login';
         }
         return Promise.reject(
@@ -66,8 +75,18 @@ class ApiService {
     return response.data;
   }
 
-  async softDeleteUser(userId: number): Promise<void> {
-    await this.api.delete(`/v1/users/${userId}`);
+  async getUserById(userId: number): Promise<User> {
+    console.log('🟠 API: Getting user by ID:', userId);
+    try {
+      const response = await this.api.get<{data: User}>(`/v1/users/${userId}`);
+      console.log('🟠 API: getUserById response:', response);
+      console.log('🟠 API: getUserById response.data:', response.data);
+      console.log('🟠 API: getUserById user data:', response.data.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('🔴 API: Error getting user by ID:', error);
+      throw error;
+    }
   }
 
   async restoreUser(userId: number): Promise<void> {

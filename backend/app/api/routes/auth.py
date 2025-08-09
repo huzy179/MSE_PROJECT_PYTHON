@@ -40,21 +40,20 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 
     # Create access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     access_token = create_access_token(
-        data={"sub": db_user.username}, expires_delta=access_token_expires
+        data={"sub": str(db_user.id)}, expires_delta=access_token_expires
+    )
+    refresh_token = create_access_token(
+        data={"sub": db_user.username, "type": "refresh"},
+        expires_delta=refresh_token_expires
     )
 
-    # Return token with user information (no data wrapper for auth)
+    # Return token only - frontend will fetch user data from token
     return {
         "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "id": db_user.id,
-            "username": db_user.username,
-            "role": db_user.role,
-            "created_at": db_user.created_at,
-            "is_deleted": db_user.deleted_at is not None
-        }
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
     }
 
 @router.get("/me", response_model=UserOut)

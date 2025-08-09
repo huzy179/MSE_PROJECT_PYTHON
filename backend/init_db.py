@@ -2,7 +2,7 @@
 Database initialization and migration utilities
 """
 from app.db.database import engine, Base
-from app.models import User  # Import để đăng ký model với Base
+from app.models.user import User  # Import để đăng ký model với Base
 
 def create_tables():
     """Create all database tables"""

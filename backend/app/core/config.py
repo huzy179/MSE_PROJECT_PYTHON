@@ -10,6 +10,7 @@ class Settings:
     SECRET_KEY: str = "MSE_2025"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 3
 
     # CORS settings
     BACKEND_CORS_ORIGINS: list = ["http://localhost:5173"]

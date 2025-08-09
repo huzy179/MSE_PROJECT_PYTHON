@@ -11,18 +11,17 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   access_token: string;
+  refresh_token: string;
   token_type: string;
-  user: User; // Thêm thông tin user vào response
 }
 
 export interface User {
   id: number;
   username: string;
   role: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
   deleted_at?: string | null;
-  is_deleted?: boolean;
 }
 
 // User management types

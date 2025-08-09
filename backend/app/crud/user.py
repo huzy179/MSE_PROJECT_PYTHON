@@ -35,6 +35,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100, include_deleted: boo
     if not include_deleted:
         stmt = stmt.where(User.deleted_at.is_(None))
     stmt = stmt.offset(skip).limit(limit)
+    return db.execute(stmt).scalars().all()
 
 def create_user(db: Session, user: UserCreate) -> User:
     """Create new user"""

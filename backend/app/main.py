@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api import api_router
 from app.db.database import engine
-from app.models import User
+from app.models.user import User
 
 # Create database tables
 User.metadata.create_all(bind=engine)

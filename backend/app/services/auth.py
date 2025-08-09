@@ -22,10 +22,19 @@ def verify_token(token: str, credentials_exception) -> TokenData:
     """Verify JWT token"""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        sub: str = payload.get("sub")
+        if sub is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+
+        # Check if sub is user_id (number) or username (string)
+        try:
+            user_id = int(sub)
+            # If it's a number, it's user_id - we need to get username
+            token_data = TokenData(username=sub)  # Store the sub value for now
+        except ValueError:
+            # If it's not a number, it's username
+            token_data = TokenData(username=sub)
+
         return token_data
     except JWTError:
         raise credentials_exception
@@ -33,6 +42,7 @@ def verify_token(token: str, credentials_exception) -> TokenData:
 def get_current_user(db: Session, token: str):
     """Get current user from JWT token"""
     from fastapi import HTTPException, status
+    from ..crud.user import get_user_by_id
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -41,7 +51,15 @@ def get_current_user(db: Session, token: str):
     )
 
     token_data = verify_token(token, credentials_exception)
-    user = get_user_by_username(db, username=token_data.username)
+
+    # Check if token_data.username is actually a user_id
+    try:
+        user_id = int(token_data.username)
+        user = get_user_by_id(db, user_id=user_id)
+    except ValueError:
+        # If it's not a number, treat as username
+        user = get_user_by_username(db, username=token_data.username)
+
     if user is None:
         raise credentials_exception
     return user

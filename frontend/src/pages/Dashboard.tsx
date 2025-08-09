@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  console.log('Dashboard user:', user);
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -124,11 +125,11 @@ const Dashboard: React.FC = () => {
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-600">Ngày tạo tài khoản</p>
                   <p className="text-lg text-gray-900">
-                    {new Date(user.created_at).toLocaleDateString('vi-VN', {
+                    {user.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
-                    })}
+                    }) : 'Không có thông tin'}
                   </p>
                 </div>
               </div>
