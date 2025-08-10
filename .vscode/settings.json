@@ -1,0 +1,7 @@
+{
+    "git.terminalAuthentication": true,
+    "git.useIntegratedTerminal": true,
+    "git.autofetch": false,
+    "git.confirmSync": false,
+    "git.path": "/usr/bin/git"
+}

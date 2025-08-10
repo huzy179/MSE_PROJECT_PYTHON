@@ -16,7 +16,7 @@ interface AuthContextType {
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (access_token: string, refresh_token: string, userData?: User) => Promise<void>;
+  login: (access_token: string, refresh_token: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (access_token: string, refresh_token: string, userData?: User) => {
+  const login = async (access_token: string, refresh_token: string) => {
     logger.log('🟡 AuthContext login started');
     logger.log('🟡 Access token:', access_token?.substring(0, 20) + '...');
 
