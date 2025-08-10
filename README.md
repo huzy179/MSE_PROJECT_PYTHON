@@ -128,6 +128,14 @@ cd frontend
 npm install
 ```
 
+#### Cấu hình Environment Variables
+```bash
+# Tạo file .env từ template
+cp .env.example .env
+
+# Chỉnh sửa .env nếu cần thiết (mặc định đã phù hợp cho development)
+```
+
 #### Chạy Frontend development server
 ```bash
 npm run dev
@@ -208,10 +216,26 @@ SECRET_KEY=your-secret-key
 ```
 
 ### Frontend
-Tạo file `.env` trong thư mục `frontend/` (tùy chọn):
-```env
-VITE_API_URL=http://localhost:8000
+Tạo file `.env` trong thư mục `frontend/` dựa trên `.env.example`:
+```bash
+cd frontend
+cp .env.example .env
 ```
+
+Cấu hình các biến môi trường trong `.env`:
+```env
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8000/api
+
+# Development Configuration
+VITE_APP_TITLE=MSE Frontend
+VITE_APP_VERSION=1.0.0
+
+# Optional: Enable/disable features
+VITE_ENABLE_DEBUG_LOGS=true
+```
+
+**Lưu ý:** File `.env` đã được thêm vào `.gitignore` để tránh commit thông tin nhạy cảm.
 
 ## 🚀 Deployment
 

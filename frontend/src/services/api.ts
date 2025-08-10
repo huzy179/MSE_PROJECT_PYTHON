@@ -8,13 +8,15 @@ import type {
   UserListParams,
   UserListResponse,
 } from '../types';
+import { config } from '../config/env';
+import { logger } from '../utils/logger';
 
 class ApiService {
   private readonly api: AxiosInstance;
 
   constructor() {
     this.api = axios.create({
-      baseURL: 'http://localhost:8000/api',
+      baseURL: config.apiBaseUrl,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -24,18 +26,18 @@ class ApiService {
     this.api.interceptors.request.use(
       (config) => {
         const access_token = localStorage.getItem('access_token');
-        console.log('🟠 API Request interceptor - token:', access_token?.substring(0, 20) + '...');
+        logger.log('🟠 API Request interceptor - token:', access_token?.substring(0, 20) + '...');
         if (access_token) {
           config.headers.Authorization = `Bearer ${access_token}`;
-          console.log('🟠 API Request interceptor - Authorization header set');
+          logger.log('🟠 API Request interceptor - Authorization header set');
         } else {
-          console.log('🔴 API Request interceptor - No token found');
+          logger.log('🔴 API Request interceptor - No token found');
         }
-        console.log('🟠 API Request interceptor - URL:', config.url);
+        logger.log('🟠 API Request interceptor - URL:', config.url);
         return config;
       },
       (error) => {
-        console.error('🔴 API Request interceptor error:', error);
+        logger.error('🔴 API Request interceptor error:', error);
         return Promise.reject(
           error instanceof Error ? error : new Error(String(error))
         );
@@ -76,15 +78,15 @@ class ApiService {
   }
 
   async getUserById(userId: number): Promise<User> {
-    console.log('🟠 API: Getting user by ID:', userId);
+    logger.log('🟠 API: Getting user by ID:', userId);
     try {
       const response = await this.api.get<{data: User}>(`/v1/users/${userId}`);
-      console.log('🟠 API: getUserById response:', response);
-      console.log('🟠 API: getUserById response.data:', response.data);
-      console.log('🟠 API: getUserById user data:', response.data.data);
+      logger.log('🟠 API: getUserById response:', response);
+      logger.log('🟠 API: getUserById response.data:', response.data);
+      logger.log('🟠 API: getUserById user data:', response.data.data);
       return response.data.data;
     } catch (error) {
-      console.error('🔴 API: Error getting user by ID:', error);
+      logger.error('🔴 API: Error getting user by ID:', error);
       throw error;
     }
   }

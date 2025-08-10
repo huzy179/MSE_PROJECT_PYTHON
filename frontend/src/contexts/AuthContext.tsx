@@ -9,6 +9,7 @@ import React, {
 import type { User } from '../types';
 import { getUserIdFromToken, isTokenExpired } from '../utils/jwt';
 import { apiService } from '../services/api';
+import { logger } from '../utils/logger';
 
 interface AuthContextType {
   user: User | null;
@@ -36,22 +37,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (access_token && !isTokenExpired(access_token)) {
         try {
-          console.log('🟡 Initializing auth with token...');
+          logger.log('🟡 Initializing auth with token...');
           // Lấy user ID từ token
           const userId = getUserIdFromToken(access_token);
           if (userId) {
-            console.log('🟡 Found user ID in token:', userId);
+            logger.log('🟡 Found user ID in token:', userId);
             // Fetch user data từ API
             const userData = await apiService.getUserById(userId);
-            console.log('🟡 Fetched user data:', userData);
+            logger.log('🟡 Fetched user data:', userData);
             setUser(userData);
             localStorage.setItem('user', JSON.stringify(userData));
           } else {
-            console.log('🔴 No user ID found in token');
+            logger.log('🔴 No user ID found in token');
             throw new Error('No user ID in token');
           }
         } catch (error) {
-          console.error('🔴 Error initializing auth:', error);
+          logger.error('🔴 Error initializing auth:', error);
           // Nếu có lỗi, xóa token và user data
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
@@ -59,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
         }
       } else {
-        console.log('🟡 No valid token found');
+        logger.log('🟡 No valid token found');
         // Token hết hạn hoặc không tồn tại
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -74,34 +75,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (access_token: string, refresh_token: string, userData?: User) => {
-    console.log('🟡 AuthContext login started');
-    console.log('🟡 Access token:', access_token?.substring(0, 20) + '...');
+    logger.log('🟡 AuthContext login started');
+    logger.log('🟡 Access token:', access_token?.substring(0, 20) + '...');
 
     try {
       // Lưu token
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('refresh_token', refresh_token);
-      console.log('🟡 Tokens saved to localStorage');
+      logger.log('🟡 Tokens saved to localStorage');
 
       // Lấy user ID từ token và fetch user data từ API
       const userId = getUserIdFromToken(access_token);
       if (userId) {
-        console.log('🟡 Found user ID in token:', userId);
+        logger.log('🟡 Found user ID in token:', userId);
         // Fetch user data từ API để có thông tin đầy đủ và mới nhất
         const fullUserData = await apiService.getUserById(userId);
-        console.log('🟡 Fetched full user data:', fullUserData);
+        logger.log('🟡 Fetched full user data:', fullUserData);
         setUser(fullUserData);
         localStorage.setItem('user', JSON.stringify(fullUserData));
-        console.log('🟡 User set successfully from API');
+        logger.log('🟡 User set successfully from API');
       } else {
-        console.log('🔴 No user ID found in token');
+        logger.log('🔴 No user ID found in token');
         throw new Error('No user ID found in token');
       }
     } catch (error) {
-      console.error('🔴 Error in login:', error);
+      logger.error('🔴 Error in login:', error);
       throw error;
     }
-    console.log('🟡 AuthContext login completed');
+    logger.log('🟡 AuthContext login completed');
   };
 
   const logout = () => {

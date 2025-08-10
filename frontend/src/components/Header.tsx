@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { config } from '../config/env';
 
 const Header: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -13,7 +14,7 @@ const Header: React.FC = () => {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">M</span>
             </div>
-            <span className="text-xl font-bold text-gray-800">MyApp</span>
+            <span className="text-xl font-bold text-gray-800">{config.appTitle}</span>
           </Link>
 
           <nav className="flex items-center space-x-6">
