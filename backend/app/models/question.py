@@ -25,7 +25,7 @@ class Question(Base):
         return (f"<Question(id={self.id},"
                 f"code='{self.code}',"
                 f"content='{self.content}',"
-                f"content_img='{self.content}',"
+                f"content_img='{self.content_img}',"
                 f"choiceA='{self.choiceA}',"
                 f"choiceB='{self.choiceB}',"
                 f"choiceC='{self.choiceC}',"

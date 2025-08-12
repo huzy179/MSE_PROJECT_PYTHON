@@ -1,3 +1,5 @@
+import re
+
 from docx import Document
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine, select
@@ -8,7 +10,6 @@ from backend.app.models.question import Question
 # read data from .docx file with provided file path
 def reading_file(file_path):
     doc = Document(file_path)
-    list_quest = []
     subject = ''
     lecturer = ''
     for para in doc.paragraphs:
@@ -17,50 +18,81 @@ def reading_file(file_path):
             subject = text.split()[1]
         if text.startswith("Lecturer:"):
             lecturer = text.split()[1]
-    print(subject, lecturer)
 
+    questions = []
     for table_idx, table in enumerate(doc.tables):
-        print(f"Table {table_idx + 1}")
-        item = {}
+        current_q = {}
+
         for row in table.rows:
+            row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+            if not row_text:
+                continue  # ignore empty row
 
-            if row.cells[0].text.strip().startswith("QN="):
-                item["code"] = row.cells[0].text.strip()
-                item['content'] = row.cells[1].text.strip()
+            cell_text = row_text[0]
 
-            if row.cells[0].text.strip().startswith("a."):
-                item["choiceA"] = row.cells[1].text.strip()
+            # Check data and put it into a dict
+            if cell_text.startswith("QN="):
+                # Save the old question
+                if current_q:
+                    questions.append(current_q)
+                    current_q = {}
 
-            if row.cells[0].text.strip().startswith("b."):
-                item["choiceB"] = row.cells[1].text.strip()
+                current_q["code"] = row_text[0]
 
-            if row.cells[0].text.strip().startswith("c."):
-                item["choiceC"] = row.cells[1].text.strip()
-
-            if row.cells[0].text.strip().startswith("d."):
-                item["choiceD"] = row.cells[1].text.strip()
-
-            if row.cells[0].text.strip().startswith("ANSWER"):
-                item["answer"] = row.cells[1].text.strip()
-
-            if row.cells[0].text.strip().startswith("MARK"):
-                item["mark"] = float(row.cells[1].text.strip())
-
-            if row.cells[0].text.strip().startswith("UNIT"):
-                item["unit"] = row.cells[1].text.strip()
-
-            if row.cells[0].text.strip().startswith("MIX"):
-                if row.cells[1].text.strip() == 'Yes':
-                    item["mix"] = True
+                if re.search(r"\[file:(.+?)\]", row_text[1]):
+                    match = re.search(r"\[file:(.+?)\]", row_text[1])
+                    if match:
+                        current_q["content_img"] = match.group(1)
+                    # Get text before [file:...]
+                    before_file = re.sub(r"\[file:.*?\]", "", row_text[1]).strip()
+                    if before_file:
+                        if "question" not in current_q:
+                            current_q["content"] = before_file
+                        else:
+                            current_q["content"] += " " + before_file
                 else:
-                    item["mix"] = False
+                    current_q["content"] = row_text[1]
+                    current_q["content_img"] = ""
 
-            item['subject'] = subject
-            item['lecturer'] = lecturer
+            elif cell_text.startswith("ANSWER:"):
+                current_q["answer"] = row_text[1]
 
-        list_quest.append(item)
+            elif cell_text.startswith("MARK:"):
+                try:
+                    current_q["mark"] = float(row_text[1])
+                except ValueError:
+                    current_q["mark"] = 0
 
-    return list_quest
+            elif cell_text.startswith("UNIT:"):
+                current_q["unit"] = row_text[1]
+
+            elif cell_text.startswith("MIX CHOICES:"):
+                if row_text[1] == 'Yes':
+                    current_q["mix"] = True
+                else:
+                    current_q["mix"] = False
+
+            elif cell_text.startswith("a."):
+                current_q["choiceA"] = row_text[1]
+
+            elif cell_text.startswith("b."):
+                current_q["choiceB"] = row_text[1]
+
+            elif cell_text.startswith("c."):
+                current_q["choiceC"] = row_text[1]
+
+            elif cell_text.startswith("d."):
+                current_q["choiceD"] = row_text[1]
+
+            current_q['subject'] = subject
+            current_q['lecturer'] = lecturer
+
+        # Add the last question
+        if current_q:
+            questions.append(current_q)
+
+    return questions
+
 
 # Todo: save data to the database
 def import_data(list_data):
@@ -74,6 +106,7 @@ def import_data(list_data):
     for item in list_data:
         question = Question(code=item['code'],
                             content=item['content'],
+                            content_img=item['content_img'],
                             choiceA=item['choiceA'],
                             choiceB=item['choiceB'],
                             choiceC=item['choiceC'],
@@ -91,6 +124,7 @@ def import_data(list_data):
     session.commit()
 
     print("Import data successfully")
+
 
 def get_question(skip: int = 0, limit: int = 100):
     # Create session
