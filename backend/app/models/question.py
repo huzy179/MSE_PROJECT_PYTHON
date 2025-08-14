@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, DateTime, func
 from sqlalchemy.orm import declarative_base, sessionmaker
 from ..db.database import Base
 
@@ -21,6 +21,13 @@ class Question(Base):
     subject = Column(String)
     lecturer = Column(String)
 
+    importer = Column(String)
+
+    # Timestamp columns
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)  # For soft delete
+
     def __repr__(self):
         return (f"<Question(id={self.id},"
                 f"code='{self.code}',"
@@ -35,4 +42,5 @@ class Question(Base):
                 f"unit='{self.unit}',"
                 f"mix='{self.mix}',"
                 f"subject='{self.subject}',"
+                f"importer='{self.importer}',"
                 f"lecturer = '{self.lecturer}'>")

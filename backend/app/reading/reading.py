@@ -4,6 +4,8 @@ from docx import Document
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine, select
 from ..core.config import settings
+from fastapi.responses import JSONResponse
+
 
 from backend.app.models.question import Question
 
@@ -120,11 +122,17 @@ def import_data(list_data):
         questions.append(question)
 
     # add item into database
-    session.add_all(questions)
-    session.commit()
-
-    print("Import data successfully")
-
+    try:
+        session.add_all(questions)
+        session.commit()
+        print("Import data successfully")
+        return {"code": 200, "message": "Import thành công!"}
+    except Exception as e:
+        session.rollback()
+        print("Có lỗi xảy ra:", str(e))
+        return {"code": 202, "message": "Lỗi xảy ra "+str(e)}
+    finally:
+        session.close()
 
 def get_question(skip: int = 0, limit: int = 100):
     # Create session

@@ -23,9 +23,13 @@ async def read_docx(file: UploadFile = File(...)):
     # Read content file .docx using python-docx
     listQuest = reading.reading_file(tmp_path)
 
-    reading.import_data(listQuest)
+    result = reading.import_data(listQuest)
 
-    return listQuest
+    if len(listQuest) == 0:
+        return {"code": 201, "message":"Không có dữ liệu hợp lệ để import. Vui lòng kiểm tra lại file và cấu trúc file .docx bạn vừa nhập."}
+    elif result["code"] != 200:
+        return result
+    return {"code": 200, "message": "Successful!", "data": listQuest}
 
 @router.get("/list")
 def get_list_quest():
