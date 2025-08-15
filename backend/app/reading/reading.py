@@ -1,19 +1,19 @@
 import re
 
 from docx import Document
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy import create_engine, select
-from ..core.config import settings
 from fastapi.responses import JSONResponse
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session, sessionmaker
 
-
+from ..core.config import settings
 from ..models.question import Question
+
 
 # read data from .docx file with provided file path
 def reading_file(file_path):
     doc = Document(file_path)
-    subject = ''
-    lecturer = ''
+    subject = ""
+    lecturer = ""
     for para in doc.paragraphs:
         text = para.text.strip()
         if text.startswith("Subject:"):
@@ -69,7 +69,7 @@ def reading_file(file_path):
                 current_q["unit"] = row_text[1]
 
             elif cell_text.startswith("MIX CHOICES:"):
-                if row_text[1] == 'Yes':
+                if row_text[1] == "Yes":
                     current_q["mix"] = True
                 else:
                     current_q["mix"] = False
@@ -86,8 +86,8 @@ def reading_file(file_path):
             elif cell_text.startswith("d."):
                 current_q["choiceD"] = row_text[1]
 
-            current_q['subject'] = subject
-            current_q['lecturer'] = lecturer
+            current_q["subject"] = subject
+            current_q["lecturer"] = lecturer
 
         # Add the last question
         if current_q:
@@ -106,19 +106,21 @@ def import_data(list_data):
     questions = []
     # bind data
     for item in list_data:
-        question = Question(code=item['code'],
-                            content=item['content'],
-                            content_img=item['content_img'],
-                            choiceA=item['choiceA'],
-                            choiceB=item['choiceB'],
-                            choiceC=item['choiceC'],
-                            choiceD=item['choiceD'],
-                            answer=item['answer'],
-                            mark=item['mark'],
-                            unit=item['unit'],
-                            subject=item['subject'],
-                            lecturer=item['lecturer'],
-                            mix=item['mix'])
+        question = Question(
+            code=item["code"],
+            content=item["content"],
+            content_img=item["content_img"],
+            choiceA=item["choiceA"],
+            choiceB=item["choiceB"],
+            choiceC=item["choiceC"],
+            choiceD=item["choiceD"],
+            answer=item["answer"],
+            mark=item["mark"],
+            unit=item["unit"],
+            subject=item["subject"],
+            lecturer=item["lecturer"],
+            mix=item["mix"],
+        )
         questions.append(question)
 
     # add item into database
@@ -130,9 +132,10 @@ def import_data(list_data):
     except Exception as e:
         session.rollback()
         print("Có lỗi xảy ra:", str(e))
-        return {"code": 202, "message": "Lỗi xảy ra "+str(e)}
+        return {"code": 202, "message": "Lỗi xảy ra " + str(e)}
     finally:
         session.close()
+
 
 def get_question(skip: int = 0, limit: int = 100):
     # Create session

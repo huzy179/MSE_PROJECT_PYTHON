@@ -95,6 +95,10 @@ class ApiService {
     await this.api.patch(`/v1/users/${userId}/restore`);
   }
 
+  async softDeleteUser(userId: number): Promise<void> {
+    await this.api.delete(`/v1/users/${userId}`);
+  }
+
   // Generic methods for future use
   get instance() {
     return this.api;

@@ -171,6 +171,14 @@ Chi tiết API có thể xem tại Swagger UI: http://localhost:8000/docs
 # Chạy server development
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
+# Format code
+python format.py
+
+# Individual formatting commands
+black app/          # Format code
+isort app/          # Sort imports
+flake8 app/         # Check code style
+
 # Test import
 python -c "from app.models.user import User; print('✅ Import OK')"
 ```

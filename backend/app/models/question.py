@@ -1,10 +1,21 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, DateTime, func
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    Integer,
+    String,
+    create_engine,
+    func,
+)
 from sqlalchemy.orm import declarative_base, sessionmaker
+
 from ..db.database import Base
+
 
 # Define Question table: Question
 class Question(Base):
-    __tablename__ = 'questions'
+    __tablename__ = "questions"
 
     id = Column(Integer, primary_key=True)
     code = Column(String)
@@ -24,23 +35,32 @@ class Question(Base):
     importer = Column(String)
 
     # Timestamp columns
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
     deleted_at = Column(DateTime(timezone=True), nullable=True)  # For soft delete
 
     def __repr__(self):
-        return (f"<Question(id={self.id},"
-                f"code='{self.code}',"
-                f"content='{self.content}',"
-                f"content_img='{self.content_img}',"
-                f"choiceA='{self.choiceA}',"
-                f"choiceB='{self.choiceB}',"
-                f"choiceC='{self.choiceC}',"
-                f"choiceD='{self.choiceD}',"
-                f"answer='{self.answer}',"
-                f"mark='{self.mark}',"
-                f"unit='{self.unit}',"
-                f"mix='{self.mix}',"
-                f"subject='{self.subject}',"
-                f"importer='{self.importer}',"
-                f"lecturer = '{self.lecturer}'>")
+        return (
+            f"<Question(id={self.id},"
+            f"code='{self.code}',"
+            f"content='{self.content}',"
+            f"content_img='{self.content_img}',"
+            f"choiceA='{self.choiceA}',"
+            f"choiceB='{self.choiceB}',"
+            f"choiceC='{self.choiceC}',"
+            f"choiceD='{self.choiceD}',"
+            f"answer='{self.answer}',"
+            f"mark='{self.mark}',"
+            f"unit='{self.unit}',"
+            f"mix='{self.mix}',"
+            f"subject='{self.subject}',"
+            f"importer='{self.importer}',"
+            f"lecturer = '{self.lecturer}'>"
+        )

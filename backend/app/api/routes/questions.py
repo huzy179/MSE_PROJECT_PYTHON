@@ -1,15 +1,17 @@
 import tempfile
 
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 
 from ...db.database import get_db
 from ...reading import reading
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 
+
 @router.get("/import_file")
 def test_get():
     return {"message": "Test OK"}
+
 
 @router.post("/import_file")
 async def read_docx(file: UploadFile = File(...)):
@@ -26,10 +28,14 @@ async def read_docx(file: UploadFile = File(...)):
     result = reading.import_data(listQuest)
 
     if len(listQuest) == 0:
-        return {"code": 201, "message":"Không có dữ liệu hợp lệ để import. Vui lòng kiểm tra lại file và cấu trúc file .docx bạn vừa nhập."}
+        return {
+            "code": 201,
+            "message": "Không có dữ liệu hợp lệ để import. Vui lòng kiểm tra lại file và cấu trúc file .docx bạn vừa nhập.",
+        }
     elif result["code"] != 200:
         return result
     return {"code": 200, "message": "Successful!", "data": listQuest}
+
 
 @router.get("/list")
 def get_list_quest():
