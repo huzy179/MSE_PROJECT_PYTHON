@@ -8,10 +8,10 @@ Một ứng dụng fullstack hiện đại được xây dựng với **FastAPI*
 - **FastAPI** - Framework Python hiện đại cho API
 - **SQLAlchemy** - ORM cho Python
 - **PostgreSQL** - Cơ sở dữ liệu quan hệ
-- **Alembic** - Database migration tool
 - **JWT** - Authentication và authorization
 - **Pydantic** - Validation và serialization
 - **Uvicorn** - ASGI server
+- **python-docx** - Đọc file Word documents
 
 ### Frontend
 - **React 19** - Thư viện UI
@@ -25,21 +25,25 @@ Một ứng dụng fullstack hiện đại được xây dựng với **FastAPI*
 
 ```
 fullstack-demo/
-├── backend/                 # FastAPI Backend
+├── .gitignore              # Git ignore rules
+├── README.md               # Project documentation
+├── backend/                # FastAPI Backend
 │   ├── app/
 │   │   ├── api/            # API routes
+│   │   │   └── routes/     # Individual route files
 │   │   ├── core/           # Configuration và security
-│   │   ├── crud/           # Database operations
 │   │   ├── db/             # Database connection
-│   │   ├── models/         # SQLAlchemy models
+│   │   ├── models/         # SQLAlchemy models (User, Question)
+│   │   ├── reading/        # Document processing logic
 │   │   ├── schemas/        # Pydantic schemas
 │   │   └── services/       # Business logic
-│   ├── alembic/            # Database migrations
 │   ├── requirements.txt    # Python dependencies
 │   └── main.py            # Application entry point
 ├── frontend/               # React Frontend
+│   ├── .env.example        # Environment variables template
 │   ├── src/
 │   │   ├── components/     # Reusable components
+│   │   ├── config/         # Configuration files
 │   │   ├── contexts/       # React contexts
 │   │   ├── guards/         # Route guards
 │   │   ├── hooks/          # Custom hooks
@@ -48,6 +52,7 @@ fullstack-demo/
 │   │   ├── routes/         # Routing configuration
 │   │   ├── services/       # API services
 │   │   ├── types/          # TypeScript types
+│   │   └── utils/          # Utility functions
 │   │   └── utils/          # Utility functions
 │   ├── package.json        # Node dependencies
 │   └── vite.config.ts      # Vite configuration
@@ -71,7 +76,7 @@ cd fullstack-demo
 
 #### Tạo và kích hoạt virtual environment
 ```bash
-# Tạo virtual environment
+# Tạo virtual environment ở root project
 python -m venv env
 
 # Kích hoạt virtual environment
@@ -85,6 +90,9 @@ source env/bin/activate
 ```bash
 cd backend
 pip install -r requirements.txt
+
+# Cài đặt thêm packages cần thiết
+pip install psycopg2-binary python-docx
 ```
 
 #### Cấu hình Database
@@ -98,23 +106,16 @@ DB_PORT: str = "5432"
 DB_NAME: str = "MSE"
 ```
 
-#### Chạy migrations
+#### Database Setup
 ```bash
-# Khởi tạo database
-python init_db.py
-
-# Chạy migrations (nếu cần)
-alembic upgrade head
-
-# Seed data (tùy chọn)
-python seed_data.py
+# Database tables sẽ được tạo tự động khi chạy app
+# Không cần migration vì sử dụng create_all()
 ```
 
 #### Chạy Backend server
 ```bash
-python main.py
-# hoặc
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Từ thư mục backend/
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Backend sẽ chạy tại: http://localhost:8000
@@ -148,14 +149,18 @@ Frontend sẽ chạy tại: http://localhost:5173
 Backend API cung cấp các endpoint sau:
 
 ### Authentication
-- `POST /api/auth/login` - Đăng nhập
-- `POST /api/auth/register` - Đăng ký
-- `POST /api/auth/refresh` - Refresh token
+- `POST /api/v1/auth/login` - Đăng nhập
+- `POST /api/v1/auth/register` - Đăng ký
 
 ### Users
-- `GET /api/users/` - Lấy danh sách users (authenticated)
-- `GET /api/users/me` - Lấy thông tin user hiện tại
-- `PUT /api/users/me` - Cập nhật thông tin user
+- `GET /api/v1/users/` - Lấy danh sách users (authenticated)
+- `GET /api/v1/users/me` - Lấy thông tin user hiện tại
+- `PATCH /api/v1/users/{user_id}/restore` - Khôi phục user đã xóa
+
+### Questions
+- `GET /api/v1/questions/import_file` - Test endpoint
+- `POST /api/v1/questions/import_file` - Import questions từ file .docx
+- `GET /api/v1/questions/list` - Lấy danh sách questions
 
 Chi tiết API có thể xem tại Swagger UI: http://localhost:8000/docs
 
@@ -164,16 +169,10 @@ Chi tiết API có thể xem tại Swagger UI: http://localhost:8000/docs
 ### Backend
 ```bash
 # Chạy server development
-python main.py
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Chạy migrations
-alembic upgrade head
-
-# Tạo migration mới
-alembic revision --autogenerate -m "description"
-
-# Seed data
-python seed_data.py
+# Test import
+python -c "from app.models.user import User; print('✅ Import OK')"
 ```
 
 ### Frontend
@@ -237,13 +236,39 @@ VITE_ENABLE_DEBUG_LOGS=true
 
 **Lưu ý:** File `.env` đã được thêm vào `.gitignore` để tránh commit thông tin nhạy cảm.
 
-## 🚀 Deployment
+## ✨ Features
+
+### 🔐 Authentication System
+- JWT-based authentication
+- User registration và login
+- Role-based access control (Admin, Teacher, Student)
+- Protected routes
+
+### 📄 Document Processing
+- Import questions từ file .docx
+- Parse structured question format
+- Support cho images trong questions
+- Automatic data validation
+
+### � User Management
+- User CRUD operations
+- Soft delete functionality
+- Role management
+- User listing với pagination
+
+### 🎨 Modern Frontend
+- React 19 với TypeScript
+- Responsive design với Tailwind CSS
+- Environment-based configuration
+- Centralized API management
+- Debug logging system
+
+## �🚀 Deployment
 
 ### Backend Deployment
 1. Cài đặt dependencies: `pip install -r requirements.txt`
 2. Cấu hình database production
-3. Chạy migrations: `alembic upgrade head`
-4. Chạy với Gunicorn: `gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker`
+3. Chạy với Uvicorn: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
 
 ### Frontend Deployment
 1. Build: `npm run build`

@@ -2,8 +2,8 @@ import tempfile
 
 from fastapi import APIRouter, UploadFile, File, Depends
 
-from backend.app.db import get_db
-from backend.app.reading import reading
+from ...db.database import get_db
+from ...reading import reading
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 

@@ -7,7 +7,7 @@ from ..core.config import settings
 from fastapi.responses import JSONResponse
 
 
-from backend.app.models.question import Question
+from ..models.question import Question
 
 # read data from .docx file with provided file path
 def reading_file(file_path):

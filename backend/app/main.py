@@ -4,8 +4,9 @@ from app.core.config import settings
 from app.api import api_router
 from app.db.database import engine
 from app.models.user import User
+from app.models.question import Question
 
-# Create database tables
+# Create database tables (includes all models that inherit from Base)
 User.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
