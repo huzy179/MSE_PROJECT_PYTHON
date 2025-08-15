@@ -1,20 +1,25 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
 import math
+from typing import List
 
-from ...core.security import security
-from ...db.database import get_db
-from ...schemas.user import UserOut, BaseResponse, MessageResponse, PaginatedResponse
-from ...crud.user import get_users, get_user_by_id, soft_delete_user, get_users_count
-from ...services.auth import get_current_user
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
+
 from ...core.constants import UserRole
+from ...core.security import security
+from ...crud.user import get_user_by_id, get_users, get_users_count, soft_delete_user
+from ...db.database import get_db
+from ...schemas.user import BaseResponse, MessageResponse, PaginatedResponse, UserOut
+from ...services.auth import get_current_user
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-def get_current_user_dependency(credentials = Depends(security), db: Session = Depends(get_db)):
+
+def get_current_user_dependency(
+    credentials=Depends(security), db: Session = Depends(get_db)
+):
     """Dependency to get current user from token"""
     return get_current_user(db, credentials.credentials)
+
 
 @router.get("/", response_model=PaginatedResponse[UserOut])
 def get_all_users(
@@ -22,14 +27,14 @@ def get_all_users(
     size: int = Query(10, ge=1, le=100, description="Number of records per page"),
     include_deleted: bool = Query(False, description="Include soft deleted users"),
     db: Session = Depends(get_db),
-    current_user: UserOut = Depends(get_current_user_dependency)
+    current_user: UserOut = Depends(get_current_user_dependency),
 ):
     """Get all users with pagination (admin only)"""
     # Check if current user is admin
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin can view all users"
+            detail="Only admin can view all users",
         )
 
     # Calculate skip based on page and size
@@ -44,72 +49,66 @@ def get_all_users(
 
     return {
         "data": users,
-        "pagination": {
-            "page": page,
-            "size": size,
-            "total": total,
-            "pages": pages
-        }
+        "pagination": {"page": page, "size": size, "total": total, "pages": pages},
     }
+
 
 @router.delete("/{user_id}", response_model=BaseResponse[MessageResponse])
 def soft_delete_user_endpoint(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: UserOut = Depends(get_current_user_dependency)
+    current_user: UserOut = Depends(get_current_user_dependency),
 ):
     """Soft delete a user (admin only)"""
     # Check if current user is admin
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin can delete users"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only admin can delete users"
         )
 
     # Check if user exists
     user_to_delete = get_user_by_id(db, user_id)
     if not user_to_delete:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
     # Prevent admin from deleting themselves
     if user_to_delete.id == current_user.id:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete yourself"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete yourself"
         )
 
     # Soft delete the user
     deleted_user = soft_delete_user(db, user_id)
     if not deleted_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to delete user"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to delete user"
         )
 
-    return {"data": {"message": f"User {user_to_delete.username} has been soft deleted"}}
+    return {
+        "data": {"message": f"User {user_to_delete.username} has been soft deleted"}
+    }
+
 
 @router.get("/{user_id}", response_model=BaseResponse[UserOut])
 def get_user_by_id_endpoint(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: UserOut = Depends(get_current_user_dependency)
+    current_user: UserOut = Depends(get_current_user_dependency),
 ):
     """Get user by ID (admin only or own profile)"""
     # Allow users to view their own profile, admin can view any profile
     if current_user.role != UserRole.ADMIN and current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only view your own profile"
+            detail="You can only view your own profile",
         )
 
     user = get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
     return {"data": user}

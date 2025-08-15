@@ -9,6 +9,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
 import { Users } from '../pages/Users';
+import Import from '../pages/Import'
 
 const AppRoutes: React.FC = () => {
   return (
@@ -42,6 +43,17 @@ const AppRoutes: React.FC = () => {
             <AuthLayout>
               <Register />
             </AuthLayout>
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path="/import"
+        element={
+          <PublicRoute>
+            <MainLayout>
+              <Import />
+            </MainLayout>
           </PublicRoute>
         }
       />
