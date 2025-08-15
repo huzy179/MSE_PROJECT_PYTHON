@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import api_router
-from app.core.config import settings
-from app.db.database import engine
-from app.models.question import Question
-from app.models.user import User
+from .api import api_router
+from .core.config import settings
+from .db.database import engine
+from .models.question import Question
+from .models.user import User
 
 # Create database tables (includes all models that inherit from Base)
 User.metadata.create_all(bind=engine)
