@@ -99,6 +99,11 @@ class ApiService {
     await this.api.delete(`/v1/users/${userId}`);
   }
 
+  async getDeletedUsers(params: UserListParams): Promise<UserListResponse> {
+    const response = await this.api.get<UserListResponse>('/v1/users/deleted', { params });
+    return response.data;
+  }
+
   // Generic methods for future use
   get instance() {
     return this.api;

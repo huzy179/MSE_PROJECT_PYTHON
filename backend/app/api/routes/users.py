@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from ...core.constants import UserRole
 from ...core.security import security
-from ...crud.user import get_user_by_id, get_users, get_users_count, soft_delete_user
+from ...services.user_service import get_user_by_id, get_users, get_users_count, soft_delete_user, restore_user
 from ...db.database import get_db
 from ...schemas.user import BaseResponse, MessageResponse, PaginatedResponse, UserOut
 from ...services.auth import get_current_user
@@ -112,3 +112,72 @@ def get_user_by_id_endpoint(
         )
 
     return {"data": user}
+
+
+@router.patch("/{user_id}/restore", response_model=MessageResponse)
+async def restore_user_endpoint(
+    user_id: int,
+    current_user=Depends(get_current_user_dependency),
+    db: Session = Depends(get_db),
+):
+    """Restore soft deleted user (admin only)"""
+    # Only admin can restore users
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can restore users",
+        )
+
+    # Check if user exists (including deleted ones)
+    user = get_user_by_id(db, user_id, include_deleted=True)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    # Check if user is actually deleted
+    if user.deleted_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is not deleted and cannot be restored",
+        )
+
+    # Restore the user
+    restored_user = restore_user(db, user_id)
+    if not restored_user:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to restore user",
+        )
+
+    return MessageResponse(message=f"User '{user.username}' has been restored successfully")
+
+
+@router.get("/deleted", response_model=PaginatedResponse[UserOut])
+async def get_deleted_users(
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Number of records to return"),
+    current_user=Depends(get_current_user_dependency),
+    db: Session = Depends(get_db),
+):
+    """Get deleted users (admin only)"""
+    # Only admin can view deleted users
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can view deleted users",
+        )
+
+    # Get deleted users only
+    deleted_users = get_users(db, skip=skip, limit=limit, include_deleted=True)
+    # Filter to only show deleted users
+    deleted_users = [user for user in deleted_users if user.deleted_at is not None]
+
+    total_deleted = get_users_count(db, include_deleted=True) - get_users_count(db, include_deleted=False)
+
+    return PaginatedResponse(
+        data=deleted_users,
+        total=total_deleted,
+        skip=skip,
+        limit=limit,
+    )

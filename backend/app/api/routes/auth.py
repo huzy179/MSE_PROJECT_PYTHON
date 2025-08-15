@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ...core.config import settings
 from ...core.security import security
-from ...crud.user import authenticate_user, create_user, get_user_by_username
+from ...services.user_service import authenticate_user, create_user, get_user_by_username
 from ...db.database import get_db
 from ...schemas.user import LoginResponse, UserCreate, UserLogin, UserOut
 from ...services.auth import create_access_token, get_current_user

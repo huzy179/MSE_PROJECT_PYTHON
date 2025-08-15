@@ -3,7 +3,7 @@ import tempfile
 from fastapi import APIRouter, Depends, File, UploadFile
 
 from ...db.database import get_db
-from ...reading import reading
+from ...services.question_service import reading_file, import_data, get_question
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 
@@ -23,9 +23,9 @@ async def read_docx(file: UploadFile = File(...)):
         tmp_path = tmp.name
 
     # Read content file .docx using python-docx
-    listQuest = reading.reading_file(tmp_path)
+    listQuest = reading_file(tmp_path)
 
-    result = reading.import_data(listQuest)
+    result = import_data(listQuest)
 
     if len(listQuest) == 0:
         return {
@@ -39,4 +39,4 @@ async def read_docx(file: UploadFile = File(...)):
 
 @router.get("/list")
 def get_list_quest():
-    return reading.get_question()
+    return get_question()
