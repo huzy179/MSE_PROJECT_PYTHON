@@ -6,10 +6,16 @@ from sqlalchemy.orm import Session
 
 from ...core.constants import UserRole
 from ...core.security import security
-from ...services.user_service import get_user_by_id, get_users, get_users_count, soft_delete_user, restore_user
 from ...db.database import get_db
 from ...schemas.user import BaseResponse, MessageResponse, PaginatedResponse, UserOut
 from ...services.auth import get_current_user
+from ...services.user_service import (
+    get_user_by_id,
+    get_users,
+    get_users_count,
+    restore_user,
+    soft_delete_user,
+)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -150,7 +156,9 @@ async def restore_user_endpoint(
             detail="Failed to restore user",
         )
 
-    return MessageResponse(message=f"User '{user.username}' has been restored successfully")
+    return MessageResponse(
+        message=f"User '{user.username}' has been restored successfully"
+    )
 
 
 @router.get("/deleted", response_model=PaginatedResponse[UserOut])
@@ -173,7 +181,9 @@ async def get_deleted_users(
     # Filter to only show deleted users
     deleted_users = [user for user in deleted_users if user.deleted_at is not None]
 
-    total_deleted = get_users_count(db, include_deleted=True) - get_users_count(db, include_deleted=False)
+    total_deleted = get_users_count(db, include_deleted=True) - get_users_count(
+        db, include_deleted=False
+    )
 
     return PaginatedResponse(
         data=deleted_users,

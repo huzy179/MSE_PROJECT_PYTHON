@@ -113,32 +113,47 @@ class UserService:
 
 
 # Backward compatibility functions
-def get_user_by_username(db: Session, username: str, include_deleted: bool = False) -> Optional[User]:
+def get_user_by_username(
+    db: Session, username: str, include_deleted: bool = False
+) -> Optional[User]:
     return UserService.get_user_by_username(db, username, include_deleted)
 
-def get_user_by_id(db: Session, user_id: int, include_deleted: bool = False) -> Optional[User]:
+
+def get_user_by_id(
+    db: Session, user_id: int, include_deleted: bool = False
+) -> Optional[User]:
     return UserService.get_user_by_id(db, user_id, include_deleted)
 
-def get_users(db: Session, skip: int = 0, limit: int = 100, include_deleted: bool = False):
+
+def get_users(
+    db: Session, skip: int = 0, limit: int = 100, include_deleted: bool = False
+):
     return UserService.get_users(db, skip, limit, include_deleted)
+
 
 def get_users_count(db: Session, include_deleted: bool = False) -> int:
     return UserService.get_users_count(db, include_deleted)
 
+
 def create_user(db: Session, user: UserCreate) -> User:
     return UserService.create_user(db, user)
+
 
 def soft_delete_user(db: Session, user_id: int) -> Optional[User]:
     return UserService.soft_delete_user(db, user_id)
 
+
 def restore_user(db: Session, user_id: int) -> Optional[User]:
     return UserService.restore_user(db, user_id)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return UserService.verify_password(plain_password, hashed_password)
 
+
 def get_password_hash(password: str) -> str:
     return UserService.get_password_hash(password)
+
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
     return UserService.authenticate_user(db, username, password)

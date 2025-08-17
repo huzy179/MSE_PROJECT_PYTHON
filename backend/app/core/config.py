@@ -1,8 +1,10 @@
 import os
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
 
 class Settings:
     # Database settings
@@ -19,7 +21,12 @@ class Settings:
     REFRESH_TOKEN_EXPIRE_DAYS: int = 3
 
     # CORS settings
-    BACKEND_CORS_ORIGINS: list = [origin.strip() for origin in os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:5174").split(",")]
+    BACKEND_CORS_ORIGINS: list = [
+        origin.strip()
+        for origin in os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:5174").split(
+            ","
+        )
+    ]
 
     @property
     def DATABASE_URL(self) -> str:

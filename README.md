@@ -64,6 +64,7 @@ CREATE DATABASE "MSE";
 ```bash
 cd backend
 cp .env.example .env
+
 # Chỉnh sửa .env nếu cần thiết (database credentials, etc.)
 ```
 
@@ -95,7 +96,7 @@ cd frontend
 npm install
 npm run dev
 ```
-➜ http://localhost:5174
+➜ http://localhost:3000
 
 ## 📝 API Endpoints
 

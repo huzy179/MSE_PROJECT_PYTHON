@@ -10,7 +10,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
 import { Users } from '../pages/Users';
-import Import from '../pages/Import';
+import Questions from '../pages/Questions';
 import { USER_ROLES } from '../constants/roles';
 
 const AppRoutes: React.FC = () => {
@@ -49,18 +49,6 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* Import - only for admin and teacher */}
-      <Route
-        path="/import"
-        element={
-          <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER, USER_ROLES.IMPORTER]}>
-            <MainLayout>
-              <Import />
-            </MainLayout>
-          </RoleGuard>
-        }
-      />
-
       {/* Dashboard - all authenticated users */}
       <Route
         path="/dashboard"
@@ -80,6 +68,18 @@ const AppRoutes: React.FC = () => {
           <RoleGuard allowedRoles={[USER_ROLES.ADMIN]}>
             <MainLayout>
               <Users />
+            </MainLayout>
+          </RoleGuard>
+        }
+      />
+
+      {/* Questions management - teacher and admin only */}
+      <Route
+        path="/questions"
+        element={
+          <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER]}>
+            <MainLayout>
+              <Questions />
             </MainLayout>
           </RoleGuard>
         }

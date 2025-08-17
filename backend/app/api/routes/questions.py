@@ -1,17 +1,54 @@
-import tempfile
-
-from fastapi import APIRouter, File, UploadFile, Form
 import json
+import tempfile
+from typing import List, Optional
 
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    UploadFile,
+    status,
+)
+from sqlalchemy.orm import Session
+
+from ...core.constants import UserRole
+from ...core.security import security
 from ...db.database import get_db
-from ...services.question_service import reading_file, import_data, get_question
+from ...schemas.question import QuestionCreate, QuestionOut, QuestionUpdate
+from ...schemas.user import BaseResponse, MessageResponse, PaginatedResponse
+from ...services.auth import get_current_user
+from ...services.question_service import (
+    create_question,
+    delete_question,
+    get_question,
+    get_question_by_id,
+    get_questions_with_pagination,
+    get_subjects,
+    import_data,
+    reading_file,
+    update_question,
+)
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 
 
-# @router.get("/import_file")
-# def test_get():
-#     return {"message": "Test OK"}
+def get_current_user_dependency(
+    credentials=Depends(security), db: Session = Depends(get_db)
+):
+    """Dependency to get current user from token"""
+    return get_current_user(db, credentials.credentials)
+
+
+def check_teacher_or_admin_permission(current_user):
+    """Check if user is teacher or admin"""
+    if current_user.role not in [UserRole.TEACHER, UserRole.ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only teachers and admins can access this resource",
+        )
 
 
 @router.post("/import_file")
@@ -47,6 +84,108 @@ async def read_docx(file: UploadFile = File(...), user: str = Form(...)):
     return {"code": 200, "message": "Successful!", "data": listQuest}
 
 
+# CRUD Endpoints
+
+
+@router.get("/", response_model=PaginatedResponse[QuestionOut])
+def get_questions(
+    page: int = Query(1, ge=1, description="Page number (starts from 1)"),
+    size: int = Query(10, ge=1, le=100, description="Number of records per page"),
+    search: Optional[str] = Query(
+        None, description="Search in content, code, or subject"
+    ),
+    subject: Optional[str] = Query(None, description="Filter by subject"),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Get questions with pagination (Teacher/Admin only)"""
+    check_teacher_or_admin_permission(current_user)
+
+    skip = (page - 1) * size
+    result = get_questions_with_pagination(
+        db, skip=skip, limit=size, search=search, subject=subject
+    )
+    return result
+
+
+@router.post("/", response_model=BaseResponse[QuestionOut])
+def create_new_question(
+    question: QuestionCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Create a new question (Teacher/Admin only)"""
+    check_teacher_or_admin_permission(current_user)
+
+    db_question = create_question(db, question, current_user.id)
+    return {"data": db_question}
+
+
+@router.get("/{question_id}", response_model=BaseResponse[QuestionOut])
+def get_question_detail(
+    question_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Get question by ID (Teacher/Admin only)"""
+    check_teacher_or_admin_permission(current_user)
+
+    question = get_question_by_id(db, question_id)
+    if not question:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Question not found"
+        )
+    return {"data": question}
+
+
+@router.put("/{question_id}", response_model=BaseResponse[QuestionOut])
+def update_question_endpoint(
+    question_id: int,
+    question: QuestionUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Update a question (Teacher/Admin only)"""
+    check_teacher_or_admin_permission(current_user)
+
+    db_question = update_question(db, question_id, question, current_user.id)
+    if not db_question:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Question not found"
+        )
+    return {"data": db_question}
+
+
+@router.delete("/{question_id}", response_model=BaseResponse[MessageResponse])
+def delete_question_endpoint(
+    question_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Delete a question (Teacher/Admin only)"""
+    check_teacher_or_admin_permission(current_user)
+
+    success = delete_question(db, question_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Question not found"
+        )
+    return {"data": {"message": "Question deleted successfully"}}
+
+
+@router.get("/subjects/list", response_model=BaseResponse[List[str]])
+def get_subjects_list(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Get all subjects (Teacher/Admin only)"""
+    check_teacher_or_admin_permission(current_user)
+
+    subjects = get_subjects(db)
+    return {"data": subjects}
+
+
+# Legacy endpoints for backward compatibility
 @router.get("/list")
 def get_list_quest():
     return get_question()

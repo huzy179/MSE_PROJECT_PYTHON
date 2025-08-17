@@ -7,6 +7,13 @@ import type {
   User,
   UserListParams,
   UserListResponse,
+  Question,
+  QuestionCreate,
+  QuestionUpdate,
+  QuestionListParams,
+  QuestionListResponse,
+  QuestionResponse,
+  SubjectsResponse,
 } from '../types';
 import { config } from '../config/env';
 import { logger } from '../utils/logger';
@@ -26,7 +33,10 @@ class ApiService {
     this.api.interceptors.request.use(
       (config) => {
         const access_token = localStorage.getItem('access_token');
-        logger.log('🟠 API Request interceptor - token:', access_token?.substring(0, 20) + '...');
+        logger.log(
+          '🟠 API Request interceptor - token:',
+          access_token?.substring(0, 20) + '...'
+        );
         if (access_token) {
           config.headers.Authorization = `Bearer ${access_token}`;
           logger.log('🟠 API Request interceptor - Authorization header set');
@@ -80,7 +90,7 @@ class ApiService {
   async getUserById(userId: number): Promise<User> {
     logger.log('🟠 API: Getting user by ID:', userId);
     try {
-      const response = await this.api.get<{data: User}>(`/users/${userId}`);
+      const response = await this.api.get<{ data: User }>(`/users/${userId}`);
       logger.log('🟠 API: getUserById response:', response);
       logger.log('🟠 API: getUserById response.data:', response.data);
       logger.log('🟠 API: getUserById user data:', response.data.data);
@@ -100,7 +110,69 @@ class ApiService {
   }
 
   async getDeletedUsers(params: UserListParams): Promise<UserListResponse> {
-    const response = await this.api.get<UserListResponse>('/users/deleted', { params });
+    const response = await this.api.get<UserListResponse>('/users/deleted', {
+      params,
+    });
+    return response.data;
+  }
+
+  // Question management methods
+  async getQuestions(
+    params?: QuestionListParams
+  ): Promise<QuestionListResponse> {
+    const response = await this.api.get<QuestionListResponse>('/questions', {
+      params,
+    });
+    return response.data;
+  }
+
+  async getQuestionById(questionId: number): Promise<Question> {
+    const response = await this.api.get<QuestionResponse>(
+      `/questions/${questionId}`
+    );
+    return response.data.data;
+  }
+
+  async createQuestion(question: QuestionCreate): Promise<Question> {
+    const response = await this.api.post<QuestionResponse>(
+      '/questions',
+      question
+    );
+    return response.data.data;
+  }
+
+  async updateQuestion(
+    questionId: number,
+    question: QuestionUpdate
+  ): Promise<Question> {
+    const response = await this.api.put<QuestionResponse>(
+      `/questions/${questionId}`,
+      question
+    );
+    return response.data.data;
+  }
+
+  async deleteQuestion(questionId: number): Promise<void> {
+    await this.api.delete(`/questions/${questionId}`);
+  }
+
+  async getSubjects(): Promise<string[]> {
+    const response = await this.api.get<SubjectsResponse>(
+      '/questions/subjects/list'
+    );
+    return response.data.data;
+  }
+
+  async importQuestions(file: File, user: any): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('user', JSON.stringify(user));
+
+    const response = await this.api.post('/questions/import_file', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   }
 
