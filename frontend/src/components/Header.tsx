@@ -15,7 +15,9 @@ const Header: React.FC = () => {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">M</span>
             </div>
-            <span className="text-xl font-bold text-gray-800">{config.appTitle}</span>
+            <span className="text-xl font-bold text-gray-800">
+              {config.appTitle}
+            </span>
           </Link>
 
           <div className="flex items-center space-x-6">
@@ -29,7 +31,9 @@ const Header: React.FC = () => {
                         {user.username.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <span className="hidden md:inline">Xin chào, {user.username}</span>
+                    <span className="hidden md:inline">
+                      Xin chào, {user.username}
+                    </span>
                   </div>
                 )}
 
@@ -41,15 +45,17 @@ const Header: React.FC = () => {
                   Dashboard
                 </Link>
 
-                {/* Import - for admin and teacher */}
-                {user && (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.TEACHER || user.role === USER_ROLES.IMPORTER) && (
-                  <Link
-                    to="/import"
-                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
-                  >
-                    Import
-                  </Link>
-                )}
+                {/* Questions management - for admin and teacher */}
+                {user &&
+                  (user.role === USER_ROLES.ADMIN ||
+                    user.role === USER_ROLES.TEACHER) && (
+                    <Link
+                      to="/questions"
+                      className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
+                    >
+                      Câu hỏi
+                    </Link>
+                  )}
 
                 {/* Users management - admin only */}
                 {user && user.role === USER_ROLES.ADMIN && (
@@ -73,11 +79,15 @@ const Header: React.FC = () => {
 
                 {/* Role badge */}
                 {user && (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    user.role === USER_ROLES.ADMIN ? 'bg-red-100 text-red-800' :
-                    user.role === USER_ROLES.TEACHER ? 'bg-blue-100 text-blue-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      user.role === USER_ROLES.ADMIN
+                        ? 'bg-red-100 text-red-800'
+                        : user.role === USER_ROLES.TEACHER
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-green-100 text-green-800'
+                    }`}
+                  >
                     {user.role.toUpperCase()}
                   </span>
                 )}

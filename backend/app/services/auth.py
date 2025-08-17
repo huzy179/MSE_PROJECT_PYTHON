@@ -52,6 +52,7 @@ def verify_token(token: str, credentials_exception) -> TokenData:
 def get_current_user(db: Session, token: str):
     """Get current user from JWT token"""
     from fastapi import HTTPException, status
+
     from .user_service import get_user_by_id, get_user_by_username
 
     credentials_exception = HTTPException(

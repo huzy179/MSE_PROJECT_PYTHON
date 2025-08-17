@@ -15,12 +15,12 @@ cp .env.example .env
 
 ### 2. Các biến môi trường có sẵn
 
-| Biến | Mô tả | Giá trị mặc định | Bắt buộc |
-|------|-------|------------------|----------|
-| `VITE_API_BASE_URL` | URL base của API backend | `http://localhost:8000/api` | ✅ |
-| `VITE_APP_TITLE` | Tên ứng dụng hiển thị | `MSE Frontend` | ❌ |
-| `VITE_APP_VERSION` | Phiên bản ứng dụng | `1.0.0` | ❌ |
-| `VITE_ENABLE_DEBUG_LOGS` | Bật/tắt debug logs | `true` | ❌ |
+| Biến                     | Mô tả                    | Giá trị mặc định            | Bắt buộc |
+| ------------------------ | ------------------------ | --------------------------- | -------- |
+| `VITE_API_BASE_URL`      | URL base của API backend | `http://localhost:8000/api` | ✅       |
+| `VITE_APP_TITLE`         | Tên ứng dụng hiển thị    | `MSE Frontend`              | ❌       |
+| `VITE_APP_VERSION`       | Phiên bản ứng dụng       | `1.0.0`                     | ❌       |
+| `VITE_ENABLE_DEBUG_LOGS` | Bật/tắt debug logs       | `true`                      | ❌       |
 
 ### 3. Sử dụng trong code
 
@@ -36,18 +36,21 @@ console.log(config.enableDebugLogs);
 ## Môi trường khác nhau
 
 ### Development
+
 ```env
 VITE_API_BASE_URL=http://localhost:8000/api
 VITE_ENABLE_DEBUG_LOGS=true
 ```
 
 ### Production
+
 ```env
 VITE_API_BASE_URL=https://your-api-domain.com/api
 VITE_ENABLE_DEBUG_LOGS=false
 ```
 
 ### Testing
+
 ```env
 VITE_API_BASE_URL=http://localhost:8001/api
 VITE_ENABLE_DEBUG_LOGS=true
@@ -63,11 +66,13 @@ VITE_ENABLE_DEBUG_LOGS=true
 ## Troubleshooting
 
 ### Biến không được load
+
 - Kiểm tra prefix `VITE_`
 - Restart dev server sau khi thay đổi .env
 - Kiểm tra syntax trong file .env
 
 ### API không kết nối được
+
 - Kiểm tra `VITE_API_BASE_URL`
 - Đảm bảo backend đang chạy
 - Kiểm tra CORS settings

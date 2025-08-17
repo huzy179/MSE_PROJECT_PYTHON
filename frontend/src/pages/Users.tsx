@@ -12,7 +12,7 @@ export const Users: React.FC = () => {
     page: 1,
     total: 0,
     totalPages: 0,
-    limit: 10
+    limit: 10,
   });
 
   const fetchUsers = useCallback(async () => {
@@ -22,13 +22,13 @@ export const Users: React.FC = () => {
       const response = await apiService.getUsers({
         include_deleted: includeDeleted,
         page: pagination.page,
-        limit: pagination.limit
+        limit: pagination.limit,
       });
       setUsers(response.data);
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         total: response.pagination.total,
-        totalPages: response.pagination.pages
+        totalPages: response.pagination.pages,
       }));
     } catch (err) {
       setError('Không thể tải danh sách người dùng');
@@ -40,7 +40,7 @@ export const Users: React.FC = () => {
 
   const handleSoftDelete = async (userId: number) => {
     if (!confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
-    
+
     try {
       await apiService.softDeleteUser(userId);
       await fetchUsers(); // Refresh list
@@ -52,7 +52,7 @@ export const Users: React.FC = () => {
 
   const handleRestore = async (userId: number) => {
     if (!confirm('Bạn có chắc chắn muốn khôi phục người dùng này?')) return;
-    
+
     try {
       await apiService.restoreUser(userId);
       await fetchUsers(); // Refresh list
@@ -72,7 +72,7 @@ export const Users: React.FC = () => {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -83,14 +83,17 @@ export const Users: React.FC = () => {
       student: 'bg-green-100 text-green-800',
       user: 'bg-gray-100 text-gray-800',
       moderator: 'bg-yellow-100 text-yellow-800',
-      editor: 'bg-indigo-100 text-indigo-800'
+      editor: 'bg-indigo-100 text-indigo-800',
     };
 
     const defaultColor = 'bg-gray-100 text-gray-800';
-    const colorClass = roleColors[role.toLowerCase() as keyof typeof roleColors] || defaultColor;
+    const colorClass =
+      roleColors[role.toLowerCase() as keyof typeof roleColors] || defaultColor;
 
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}
+      >
         {role.charAt(0).toUpperCase() + role.slice(1)}
       </span>
     );
@@ -133,7 +136,7 @@ export const Users: React.FC = () => {
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-800">{error}</p>
-          <button 
+          <button
             onClick={() => setError(null)}
             className="mt-2 text-red-600 hover:text-red-800 text-sm font-medium"
           >
@@ -157,7 +160,7 @@ export const Users: React.FC = () => {
             </span>
           </label>
         </div>
-        
+
         <button
           onClick={fetchUsers}
           disabled={loading}
@@ -257,7 +260,12 @@ export const Users: React.FC = () => {
           </div>
           <div className="flex space-x-2">
             <button
-              onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  page: Math.max(1, prev.page - 1),
+                }))
+              }
               disabled={pagination.page === 1}
               className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
@@ -267,7 +275,12 @@ export const Users: React.FC = () => {
               {pagination.page} / {pagination.totalPages}
             </span>
             <button
-              onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  page: Math.min(prev.totalPages, prev.page + 1),
+                }))
+              }
               disabled={pagination.page === pagination.totalPages}
               className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >

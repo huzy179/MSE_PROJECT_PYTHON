@@ -10,11 +10,11 @@ interface RoleGuardProps {
   requireAuth?: boolean;
 }
 
-const RoleGuard: React.FC<RoleGuardProps> = ({ 
-  children, 
-  allowedRoles, 
+const RoleGuard: React.FC<RoleGuardProps> = ({
+  children,
+  allowedRoles,
   fallbackPath = '/dashboard',
-  requireAuth = true 
+  requireAuth = true,
 }) => {
   const { user, isAuthenticated, isLoading } = useAuthContext();
 

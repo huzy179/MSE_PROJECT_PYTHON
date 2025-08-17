@@ -40,7 +40,7 @@ export const useAuth = () => {
 
       // Thêm delay nhỏ để đảm bảo state được update
       console.log('🔵 Waiting for state update...');
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       console.log('🔵 Navigating to dashboard...');
       navigate('/dashboard');
@@ -48,7 +48,10 @@ export const useAuth = () => {
       return response;
     } catch (err) {
       console.error('🔴 Login error:', err);
-      console.error('🔴 Error stack:', err instanceof Error ? err.stack : 'No stack');
+      console.error(
+        '🔴 Error stack:',
+        err instanceof Error ? err.stack : 'No stack'
+      );
       const axiosError = err as AxiosError;
       const errorMessage =
         axiosError.response?.data?.detail || 'Đăng nhập thất bại';
