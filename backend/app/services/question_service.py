@@ -145,6 +145,7 @@ class QuestionService:
             unit=question_data.get('unit', ''),
             subject=question_data.get('subject', ''),
             lecturer=question_data.get('lecturer', ''),
+            importer=question_data.get('importer', 0),
             mix=question_data.get('mix', False)
         )
 

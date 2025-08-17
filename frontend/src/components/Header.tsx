@@ -42,7 +42,7 @@ const Header: React.FC = () => {
                 </Link>
 
                 {/* Import - for admin and teacher */}
-                {user && (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.TEACHER) && (
+                {user && (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.TEACHER || user.role === USER_ROLES.IMPORTER) && (
                   <Link
                     to="/import"
                     className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
