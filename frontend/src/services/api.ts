@@ -63,24 +63,24 @@ class ApiService {
 
   // Auth methods
   async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await this.api.post<AuthResponse>('/v1/auth/login', data);
+    const response = await this.api.post<AuthResponse>('/auth/login', data);
     return response.data;
   }
 
   async register(data: RegisterRequest): Promise<void> {
-    await this.api.post('/v1/auth/register', data);
+    await this.api.post('/auth/register', data);
   }
 
   // User management methods
   async getUsers(params?: UserListParams): Promise<UserListResponse> {
-    const response = await this.api.get<UserListResponse>('/v1/users', { params });
+    const response = await this.api.get<UserListResponse>('/users', { params });
     return response.data;
   }
 
   async getUserById(userId: number): Promise<User> {
     logger.log('🟠 API: Getting user by ID:', userId);
     try {
-      const response = await this.api.get<{data: User}>(`/v1/users/${userId}`);
+      const response = await this.api.get<{data: User}>(`/users/${userId}`);
       logger.log('🟠 API: getUserById response:', response);
       logger.log('🟠 API: getUserById response.data:', response.data);
       logger.log('🟠 API: getUserById user data:', response.data.data);
@@ -92,15 +92,15 @@ class ApiService {
   }
 
   async restoreUser(userId: number): Promise<void> {
-    await this.api.patch(`/v1/users/${userId}/restore`);
+    await this.api.patch(`/users/${userId}/restore`);
   }
 
   async softDeleteUser(userId: number): Promise<void> {
-    await this.api.delete(`/v1/users/${userId}`);
+    await this.api.delete(`/users/${userId}`);
   }
 
   async getDeletedUsers(params: UserListParams): Promise<UserListResponse> {
-    const response = await this.api.get<UserListResponse>('/v1/users/deleted', { params });
+    const response = await this.api.get<UserListResponse>('/users/deleted', { params });
     return response.data;
   }
 

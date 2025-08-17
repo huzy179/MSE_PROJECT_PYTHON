@@ -47,45 +47,120 @@ MSE_PROJECT_PYTHON/
 - Node.js 18+
 - PostgreSQL (database tên 'MSE')
 
-### Backend
+### 1. Setup Database
+```bash
+# Tạo database PostgreSQL
+createdb MSE
+
+# Hoặc sử dụng psql
+psql -U postgres
+CREATE DATABASE "MSE";
+\q
+```
+
+### 2. Setup Environment Variables
+
+#### Backend
+```bash
+cd backend
+cp .env.example .env
+# Chỉnh sửa .env nếu cần thiết (database credentials, etc.)
+```
+
+#### Frontend
+```bash
+cd frontend
+cp .env.example .env
+# Chỉnh sửa .env nếu cần thiết
+```
+
+### 3. Backend Setup
 ```bash
 python -m venv env
-source env/bin/activate
+source env/bin/activate  # Windows: env\Scripts\activate
 cd backend
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+
+# Tạo tables và seed data
+python seed_data.py
+
+# Chạy server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 ➜ http://localhost:8000
 
-### Frontend
+### 4. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-➜ http://localhost:5173
+➜ http://localhost:5174
 
 ## 📝 API Endpoints
 
 ### Authentication
-- `POST /api/v1/auth/login` - Đăng nhập
-- `POST /api/v1/auth/register` - Đăng ký
+- `POST /api/auth/login` - Đăng nhập
+- `POST /api/auth/register` - Đăng ký
+- `GET /api/auth/me` - Thông tin user hiện tại
 
 ### Users
-- `GET /api/v1/users/me` - Thông tin user hiện tại
-- `GET /api/v1/users/` - Danh sách users
+- `GET /api/users/` - Danh sách users (admin only)
+- `GET /api/users/{id}` - Thông tin user theo ID
+- `DELETE /api/users/{id}` - Xóa user (admin only)
 
 ### Questions
-- `POST /api/v1/questions/import_file` - Import từ file .docx
-- `GET /api/v1/questions/list` - Danh sách questions
+- `POST /api/questions/import_file` - Import từ file .docx
+- `GET /api/questions/list` - Danh sách questions
 
 **API Documentation:** http://localhost:8000/docs
+
+## � Default Users (từ seed data)
+
+Sau khi chạy `python seed_data.py`, hệ thống sẽ tạo các user mặc định:
+
+| Username | Password | Role | Mô tả |
+|----------|----------|------|-------|
+| `admin` | `admin123` | admin | Quản trị viên - Full quyền |
+| `teacher1` | `teacher123` | teacher | Giáo viên - Quản lý khóa học |
+| `student1` | `student123` | student | Học sinh - Xem khóa học |
+
+## �🔧 Environment Variables
+
+### Backend (.env)
+```env
+# Database Configuration
+DB_USER=postgres
+DB_PASS=postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=MSE
+
+# Security Configuration
+SECRET_KEY=your_secret_key_here
+
+# CORS Configuration
+BACKEND_CORS_ORIGINS=http://localhost:5174
+```
+
+### Frontend (.env)
+```env
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8000/api
+
+# Development Configuration
+VITE_APP_TITLE=MSE Frontend
+VITE_APP_VERSION=1.0.0
+
+# Optional: Enable/disable features
+VITE_ENABLE_DEBUG_LOGS=true
+```
 
 ## 🔧 Commands
 
 ```bash
 # Backend
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 python format.py
 
 # Frontend
