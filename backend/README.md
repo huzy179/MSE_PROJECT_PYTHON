@@ -86,9 +86,9 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ## API Endpoints
 
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login user
-- `GET /api/v1/auth/me` - Get current user info
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get current user info
 - `GET /health` - Health check
 
 ## Development

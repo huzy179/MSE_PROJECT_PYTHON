@@ -11,8 +11,9 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from sqlalchemy.orm import Session
-from app.db.database import SessionLocal, engine, Base
-from app.crud.user import create_user, get_user_by_username
+from app.db.database import SessionLocal, engine
+from app.models.user import User
+from app.services.user_service import create_user, get_user_by_username
 from app.schemas.user import UserCreate
 from app.core.constants import UserRole
 
@@ -53,7 +54,7 @@ SAMPLE_USERS = [
 def create_tables():
     """Create all tables"""
     print("Creating database tables...")
-    Base.metadata.create_all(bind=engine)
+    User.metadata.create_all(bind=engine)
     print("✅ Tables created successfully!")
 
 def seed_users(db: Session):
