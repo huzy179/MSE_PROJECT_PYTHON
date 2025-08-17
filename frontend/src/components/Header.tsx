@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { config } from '../config/env';
+import { USER_ROLES } from '../constants/roles';
 
 const Header: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -17,9 +18,10 @@ const Header: React.FC = () => {
             <span className="text-xl font-bold text-gray-800">{config.appTitle}</span>
           </Link>
 
-          <nav className="flex items-center space-x-6">
+          <div className="flex items-center space-x-6">
             {isAuthenticated ? (
               <>
+                {/* User info */}
                 {user && (
                   <div className="flex items-center space-x-2 text-gray-600">
                     <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
@@ -30,18 +32,57 @@ const Header: React.FC = () => {
                     <span className="hidden md:inline">Xin chào, {user.username}</span>
                   </div>
                 )}
+
+                {/* Navigation links based on role */}
                 <Link
                   to="/dashboard"
                   className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
                 >
                   Dashboard
                 </Link>
-                <Link
-                  to="/users"
-                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
-                >
-                  Người dùng
-                </Link>
+
+                {/* Import - for admin and teacher */}
+                {user && (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.TEACHER) && (
+                  <Link
+                    to="/import"
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
+                  >
+                    Import
+                  </Link>
+                )}
+
+                {/* Users management - admin only */}
+                {user && user.role === USER_ROLES.ADMIN && (
+                  <Link
+                    to="/users"
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
+                  >
+                    Người dùng
+                  </Link>
+                )}
+
+                {/* Admin panel - admin only */}
+                {user && user.role === USER_ROLES.ADMIN && (
+                  <Link
+                    to="/admin"
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
+                  >
+                    Admin
+                  </Link>
+                )}
+
+                {/* Role badge */}
+                {user && (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    user.role === USER_ROLES.ADMIN ? 'bg-red-100 text-red-800' :
+                    user.role === USER_ROLES.TEACHER ? 'bg-blue-100 text-blue-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {user.role.toUpperCase()}
+                  </span>
+                )}
+
+                {/* Logout button */}
                 <button
                   onClick={logout}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
@@ -65,7 +106,7 @@ const Header: React.FC = () => {
                 </Link>
               </>
             )}
-          </nav>
+          </div>
         </div>
       </div>
     </header>
