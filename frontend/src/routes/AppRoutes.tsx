@@ -53,7 +53,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/import"
         element={
-          <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER]}>
+          <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER, USER_ROLES.IMPORTER]}>
             <MainLayout>
               <Import />
             </MainLayout>

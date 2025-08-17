@@ -32,7 +32,8 @@ class Question(Base):
     subject = Column(String)
     lecturer = Column(String)
 
-    importer = Column(String)
+    importer = Column(Integer)
+    editor = Column(Integer)
 
     # Timestamp columns
     created_at = Column(
@@ -62,5 +63,6 @@ class Question(Base):
             f"mix='{self.mix}',"
             f"subject='{self.subject}',"
             f"importer='{self.importer}',"
+            f"editor='{self.editor}',"
             f"lecturer = '{self.lecturer}'>"
         )
