@@ -1,6 +1,7 @@
 import tempfile
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, Form
+import json
 
 from ...db.database import get_db
 from ...services.question_service import reading_file, import_data, get_question
@@ -8,13 +9,16 @@ from ...services.question_service import reading_file, import_data, get_question
 router = APIRouter(prefix="/questions", tags=["questions"])
 
 
-@router.get("/import_file")
-def test_get():
-    return {"message": "Test OK"}
+# @router.get("/import_file")
+# def test_get():
+#     return {"message": "Test OK"}
 
 
 @router.post("/import_file")
-async def read_docx(file: UploadFile = File(...)):
+async def read_docx(file: UploadFile = File(...), user: str = Form(...)):
+    user_data = json.loads(user)
+
+    print(user_data)
 
     # Create temporary file to upload
     contents = await file.read()
@@ -25,7 +29,13 @@ async def read_docx(file: UploadFile = File(...)):
     # Read content file .docx using python-docx
     listQuest = reading_file(tmp_path)
 
+    for item in listQuest:
+        item["importer"] = int(user_data["id"])
+
     result = import_data(listQuest)
+
+    for item in listQuest:
+        item["importer"] = user_data["username"]
 
     if len(listQuest) == 0:
         return {
