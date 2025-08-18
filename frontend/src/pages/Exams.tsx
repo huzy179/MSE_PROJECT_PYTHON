@@ -50,10 +50,10 @@ const Exams: React.FC = () => {
     );
   }
 
-  const handleCreateExam = () => {
-    setEditingExam(undefined);
-    setViewMode('form');
-  };
+  // const handleCreateExam = () => {
+  //   setEditingExam(undefined);
+  //   setViewMode('form');
+  // };
 
   const handleGenerateExam = () => {
     setViewMode('generate');
@@ -172,7 +172,7 @@ const Exams: React.FC = () => {
                   </svg>
                   Sinh đề thi tự động
                 </button>
-                <button
+                {/* <button
                   onClick={handleCreateExam}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
@@ -190,7 +190,7 @@ const Exams: React.FC = () => {
                     />
                   </svg>
                   Tạo đề thi mới
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
