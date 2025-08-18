@@ -52,7 +52,7 @@ const ExamForm: React.FC<ExamFormProps> = ({ exam, onSave, onCancel }) => {
       for (const subject of subjectList) {
         try {
           const response = await apiService.getQuestions({ subject, size: 1 });
-          questionCounts[subject] = response.total;
+          questionCounts[subject] = response.pagination.total;
         } catch (err) {
           questionCounts[subject] = 0;
         }
