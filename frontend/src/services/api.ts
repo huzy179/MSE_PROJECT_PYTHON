@@ -1,21 +1,27 @@
 // frontend/src/api.ts
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
+import { config } from '../config/env';
 import type {
-  LoginRequest,
-  RegisterRequest,
   AuthResponse,
-  User,
-  UserListParams,
-  UserListResponse,
+  Exam,
+  ExamCreate,
+  ExamDetailResponse,
+  ExamGenerateRequest,
+  ExamListParams,
+  ExamUpdate,
+  LoginRequest,
   Question,
   QuestionCreate,
-  QuestionUpdate,
   QuestionListParams,
   QuestionListResponse,
   QuestionResponse,
+  QuestionUpdate,
+  RegisterRequest,
   SubjectsResponse,
+  User,
+  UserListParams,
+  UserListResponse,
 } from '../types';
-import { config } from '../config/env';
 import { logger } from '../utils/logger';
 
 class ApiService {
@@ -173,6 +179,47 @@ class ApiService {
         'Content-Type': 'multipart/form-data',
       },
     });
+    return response.data;
+  }
+
+  // Exam methods
+  async getExams(params?: ExamListParams): Promise<UserListResponse<Exam>> {
+    const response = await this.api.get('/exams', { params });
+    return response.data;
+  }
+
+  async getExamById(id: number): Promise<ExamDetailResponse> {
+    const response = await this.api.get(`/exams/${id}`);
+    return response.data;
+  }
+
+  async createExam(exam: ExamCreate): Promise<Exam> {
+    const response = await this.api.post('/exams', exam);
+    return response.data;
+  }
+
+  async generateExam(examRequest: ExamGenerateRequest): Promise<Exam> {
+    const response = await this.api.post('/exams/generate', examRequest);
+    return response.data;
+  }
+
+  async updateExam(id: number, exam: ExamUpdate): Promise<Exam> {
+    const response = await this.api.put(`/exams/${id}`, exam);
+    return response.data;
+  }
+
+  async deleteExam(id: number): Promise<{ message: string }> {
+    const response = await this.api.delete(`/exams/${id}`);
+    return response.data;
+  }
+
+  async restoreExam(id: number): Promise<{ message: string }> {
+    const response = await this.api.post(`/exams/${id}/restore`);
+    return response.data;
+  }
+
+  async getExamSubjects(): Promise<string[]> {
+    const response = await this.api.get('/exams/subjects');
     return response.data;
   }
 

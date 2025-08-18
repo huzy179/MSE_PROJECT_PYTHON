@@ -9,6 +9,7 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   USERS: '/users',
   QUESTIONS: '/questions',
+  EXAMS: '/exams',
 
   // Admin only routes
   ADMIN: '/admin',
@@ -20,6 +21,7 @@ export const PROTECTED_ROUTES = [
   ROUTES.DASHBOARD,
   ROUTES.USERS,
   ROUTES.QUESTIONS,
+  ROUTES.EXAMS,
 ];
 
 export const ADMIN_ROUTES = [ROUTES.ADMIN];
