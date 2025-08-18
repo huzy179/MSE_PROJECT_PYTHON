@@ -1,17 +1,18 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { USER_ROLES } from '../constants/roles';
+import ProtectedRoute from '../guards/ProtectedRoute';
+import PublicRoute from '../guards/PublicRoute';
+import RoleGuard from '../guards/RoleGuard';
 import AuthLayout from '../layouts/AuthLayout';
 import MainLayout from '../layouts/MainLayout';
-import PublicRoute from '../guards/PublicRoute';
-import ProtectedRoute from '../guards/ProtectedRoute';
-import RoleGuard from '../guards/RoleGuard';
+import Dashboard from '../pages/Dashboard';
+import Exams from '../pages/Exams';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
-import Register from '../pages/Register';
-import Dashboard from '../pages/Dashboard';
-import { Users } from '../pages/Users';
 import Questions from '../pages/Questions';
-import { USER_ROLES } from '../constants/roles';
+import Register from '../pages/Register';
+import { Users } from '../pages/Users';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -80,6 +81,18 @@ const AppRoutes: React.FC = () => {
           <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER]}>
             <MainLayout>
               <Questions />
+            </MainLayout>
+          </RoleGuard>
+        }
+      />
+
+      {/* Exams management - teacher and admin only */}
+      <Route
+        path="/exams"
+        element={
+          <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER]}>
+            <MainLayout>
+              <Exams />
             </MainLayout>
           </RoleGuard>
         }

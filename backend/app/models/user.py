@@ -1,4 +1,5 @@
 from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from ..core.constants import UserRole
@@ -24,6 +25,9 @@ class User(Base):
         nullable=False,
     )
     deleted_at = Column(DateTime(timezone=True), nullable=True)  # For soft delete
+
+    # Relationships
+    exams = relationship("Exam", back_populates="creator")
 
     def __repr__(self):
         return (

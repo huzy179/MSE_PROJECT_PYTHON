@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { config } from '../config/env';
 import { USER_ROLES } from '../constants/roles';
+import { useAuth } from '../hooks/useAuth';
 
 const Header: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -54,6 +54,18 @@ const Header: React.FC = () => {
                       className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
                     >
                       Câu hỏi
+                    </Link>
+                  )}
+
+                {/* Exams management - for admin and teacher */}
+                {user &&
+                  (user.role === USER_ROLES.ADMIN ||
+                    user.role === USER_ROLES.TEACHER) && (
+                    <Link
+                      to="/exams"
+                      className="text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
+                    >
+                      Đề thi
                     </Link>
                   )}
 
