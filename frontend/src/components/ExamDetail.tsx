@@ -24,7 +24,9 @@ const ExamDetail: React.FC<ExamDetailProps> = ({ examId, onBack, onEdit }) => {
       const examData = await apiService.getExamById(examId);
       setExam(examData);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Có lỗi xảy ra khi tải chi tiết đề thi');
+      setError(
+        err.response?.data?.detail || 'Có lỗi xảy ra khi tải chi tiết đề thi'
+      );
     } finally {
       setLoading(false);
     }
@@ -53,8 +55,16 @@ const ExamDetail: React.FC<ExamDetailProps> = ({ examId, onBack, onEdit }) => {
       <div className="bg-red-50 border border-red-200 rounded-md p-4">
         <div className="flex">
           <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            <svg
+              className="h-5 w-5 text-red-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
           <div className="ml-3">
@@ -102,15 +112,23 @@ const ExamDetail: React.FC<ExamDetailProps> = ({ examId, onBack, onEdit }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="text-sm font-medium text-gray-500">Môn học</div>
-            <div className="text-lg font-semibold text-gray-900">{exam.subject}</div>
+            <div className="text-lg font-semibold text-gray-900">
+              {exam.subject}
+            </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="text-sm font-medium text-gray-500">Thời gian thi</div>
-            <div className="text-lg font-semibold text-gray-900">{formatDuration(exam.duration)}</div>
+            <div className="text-sm font-medium text-gray-500">
+              Thời gian thi
+            </div>
+            <div className="text-lg font-semibold text-gray-900">
+              {formatDuration(exam.duration)}
+            </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="text-sm font-medium text-gray-500">Số câu hỏi</div>
-            <div className="text-lg font-semibold text-gray-900">{exam.total_questions}</div>
+            <div className="text-lg font-semibold text-gray-900">
+              {exam.total_questions}
+            </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="text-sm font-medium text-gray-500">Trạng thái</div>
@@ -136,7 +154,8 @@ const ExamDetail: React.FC<ExamDetailProps> = ({ examId, onBack, onEdit }) => {
         )}
 
         <div className="mt-4 text-sm text-gray-500">
-          Được tạo bởi: {exam.creator_username || 'N/A'} vào {new Date(exam.created_at).toLocaleString('vi-VN')}
+          Được tạo bởi: {exam.creator_username || 'N/A'} vào{' '}
+          {new Date(exam.created_at).toLocaleString('vi-VN')}
         </div>
       </div>
 
@@ -148,16 +167,33 @@ const ExamDetail: React.FC<ExamDetailProps> = ({ examId, onBack, onEdit }) => {
 
         {exam.questions.length === 0 ? (
           <div className="text-center py-8">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Chưa có câu hỏi</h3>
-            <p className="mt-1 text-sm text-gray-500">Đề thi này chưa có câu hỏi nào.</p>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              Chưa có câu hỏi
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Đề thi này chưa có câu hỏi nào.
+            </p>
           </div>
         ) : (
           <div className="space-y-6">
             {exam.questions.map((question, index) => (
-              <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+              <div
+                key={question.id}
+                className="border border-gray-200 rounded-lg p-4"
+              >
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-medium text-gray-900">
                     Câu {question.question_order}: {question.content}
@@ -194,8 +230,16 @@ const ExamDetail: React.FC<ExamDetailProps> = ({ examId, onBack, onEdit }) => {
                         </span>
                         <span>{choice}</span>
                         {choiceIndex === question.correct_answer_index && (
-                          <svg className="w-4 h-4 ml-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          <svg
+                            className="w-4 h-4 ml-2 text-green-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                         )}
                       </div>

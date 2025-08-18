@@ -13,7 +13,9 @@ const Exams: React.FC = () => {
   const { user } = useAuth();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [editingExam, setEditingExam] = useState<Exam | undefined>(undefined);
-  const [viewingExamId, setViewingExamId] = useState<number | undefined>(undefined);
+  const [viewingExamId, setViewingExamId] = useState<number | undefined>(
+    undefined
+  );
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Check if user has permission to access this page
@@ -72,7 +74,7 @@ const Exams: React.FC = () => {
   const handleSaveExam = () => {
     setViewMode('list');
     setEditingExam(undefined);
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   const handleCancelForm = () => {
@@ -95,7 +97,7 @@ const Exams: React.FC = () => {
 
   const handleGenerateSuccess = () => {
     setViewMode('list');
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   const handleCancelGenerate = () => {
@@ -147,7 +149,9 @@ const Exams: React.FC = () => {
           <div className="mb-8">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Quản lý đề thi</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Quản lý đề thi
+                </h1>
                 <p className="mt-2 text-gray-600">
                   Tạo và quản lý đề thi cho các môn học
                 </p>
@@ -197,9 +201,7 @@ const Exams: React.FC = () => {
         )}
 
         {/* Content */}
-        <div className="space-y-6">
-          {renderContent()}
-        </div>
+        <div className="space-y-6">{renderContent()}</div>
       </div>
     </div>
   );
