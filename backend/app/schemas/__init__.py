@@ -9,6 +9,7 @@ from .exam import (
 )
 from .question import QuestionCreate, QuestionInDB, QuestionOut, QuestionUpdate
 from .user import Token, TokenData, UserCreate, UserInDB, UserOut, UserUpdate
+from .exam_schedule import ExamScheduleCreate, ExamScheduleOut, ExamScheduleUpdate
 
 __all__ = [
     "UserCreate",
@@ -28,4 +29,7 @@ __all__ = [
     "ExamGenerateRequest",
     "ExamQuestionDetail",
     "ExamDetailResponse",
+    "ExamScheduleCreate",
+    "ExamScheduleOut",
+    "ExamScheduleUpdate"
 ]
