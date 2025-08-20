@@ -52,10 +52,16 @@ def check_teacher_or_admin_permission(current_user):
 
 
 @router.post("/import_file")
-async def read_docx(file: UploadFile = File(...), user: str = Form(...)):
+async def read_docx(
+        file: UploadFile = File(...),
+        user: str = Form(...),
+        current_user=Depends(get_current_user_dependency),
+        db: Session = Depends(get_db),
+):
     user_data = json.loads(user)
 
     print(user_data)
+    print(current_user)
 
     # Create temporary file to upload
     contents = await file.read()
@@ -67,12 +73,12 @@ async def read_docx(file: UploadFile = File(...), user: str = Form(...)):
     listQuest = reading_file(tmp_path)
 
     for item in listQuest:
-        item["importer"] = int(user_data["id"])
+        item["importer"] = current_user.id
 
     result = import_data(listQuest)
 
     for item in listQuest:
-        item["importer"] = user_data["username"]
+        item["importer"] = current_user.username
 
     if len(listQuest) == 0:
         return {
