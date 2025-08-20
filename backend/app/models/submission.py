@@ -9,7 +9,7 @@ class Submission(Base):
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     exam_schedule_id = Column(Integer, ForeignKey("exam_schedules.id"), nullable=False)
-    submitted_at = Column(DateTime, default=datetime.utcnow)
+    submitted_at = Column(DateTime, nullable=True)
     answers = Column(Text, nullable=False)  # JSON string or text
     score = Column(Integer, nullable=True)
     is_late = Column(Boolean, default=False)

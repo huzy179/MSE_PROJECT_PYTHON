@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from "react";
-import type { ExamSchedule, ExamScheduleCreate, ExamScheduleUpdate } from "../types/exam_schedule";
-import { apiService } from "../services/api";
-import { useAuth } from "../hooks/useAuth";
-import type { Exam } from "../types/exam";
+import React, { useState, useEffect } from 'react';
+import type {
+  ExamSchedule,
+  ExamScheduleCreate,
+  ExamScheduleUpdate,
+} from '../types/exam_schedule';
+import { apiService } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
+import type { Exam } from '../types/exam';
 
 interface Props {
   initialData?: ExamSchedule;
   onSuccess?: () => void;
 }
 
-const defaultForm: Omit<ExamScheduleCreate, "created_by"> = {
-  title: "",
-  description: "",
+const defaultForm: Omit<ExamScheduleCreate, 'created_by'> = {
+  title: '',
+  description: '',
   exam_id: 1,
-  start_time: "",
-  end_time: "",
+  start_time: '',
+  end_time: '',
   max_attempts: 1,
   is_active: true,
 };
@@ -25,8 +29,8 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
     initialData
       ? {
           ...initialData,
-          start_time: initialData.start_time?.slice(0, 16) ?? "",
-          end_time: initialData.end_time?.slice(0, 16) ?? "",
+          start_time: initialData.start_time?.slice(0, 16) ?? '',
+          end_time: initialData.end_time?.slice(0, 16) ?? '',
         }
       : { ...defaultForm }
   );
@@ -46,18 +50,20 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
   }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const target = e.target;
     const { name, value, type } = target;
     setForm((prev) => ({
       ...prev,
       [name]:
-        type === "checkbox"
+        type === 'checkbox'
           ? (target as HTMLInputElement).checked
-          : type === "number"
-          ? Number(value)
-          : value,
+          : type === 'number'
+            ? Number(value)
+            : value,
     }));
   };
 
@@ -66,10 +72,13 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
     setLoading(true);
     try {
       if (initialData) {
-        await apiService.updateExamSchedule(initialData.id, form as ExamScheduleUpdate);
+        await apiService.updateExamSchedule(
+          initialData.id,
+          form as ExamScheduleUpdate
+        );
       } else {
         if (!user?.id) {
-          alert("Không xác định được người dùng đăng nhập.");
+          alert('Không xác định được người dùng đăng nhập.');
           setLoading(false);
           return;
         }
@@ -80,7 +89,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
       }
       if (onSuccess) onSuccess();
     } catch (err) {
-      alert("Có lỗi xảy ra!");
+      alert('Có lỗi xảy ra!');
     } finally {
       setLoading(false);
     }
@@ -97,7 +106,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
         </label>
         <input
           name="title"
-          value={form.title ?? ""}
+          value={form.title ?? ''}
           onChange={handleChange}
           required
           className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
@@ -110,7 +119,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
         </label>
         <textarea
           name="description"
-          value={form.description ?? ""}
+          value={form.description ?? ''}
           onChange={handleChange}
           className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           placeholder="Nhập mô tả"
@@ -123,7 +132,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
         </label>
         <select
           name="exam_id"
-          value={form.exam_id ?? ""}
+          value={form.exam_id ?? ''}
           onChange={handleChange}
           required
           className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
@@ -144,7 +153,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
           <input
             name="start_time"
             type="datetime-local"
-            value={form.start_time ?? ""}
+            value={form.start_time ?? ''}
             onChange={handleChange}
             required
             className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
@@ -157,7 +166,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
           <input
             name="end_time"
             type="datetime-local"
-            value={form.end_time ?? ""}
+            value={form.end_time ?? ''}
             onChange={handleChange}
             required
             className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
@@ -171,7 +180,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
         <input
           name="max_attempts"
           type="number"
-          value={form.max_attempts ?? ""}
+          value={form.max_attempts ?? ''}
           onChange={handleChange}
           required
           min={1}
@@ -196,7 +205,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
           disabled={loading}
           className="px-5 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition"
         >
-          {initialData ? "Cập nhật" : "Tạo mới"}
+          {initialData ? 'Cập nhật' : 'Tạo mới'}
         </button>
       </div>
     </form>

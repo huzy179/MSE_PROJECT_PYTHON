@@ -9,8 +9,12 @@ import type {
   ExamGenerateRequest,
   ExamListParams,
   ExamSchedule,
+  ExamScheduleCreate,
+  ExamSchedulePaginationOut,
+  ExamScheduleUpdate,
   ExamUpdate,
   LoginRequest,
+  PaginatedResponse,
   Question,
   QuestionCreate,
   QuestionListParams,
@@ -19,13 +23,11 @@ import type {
   QuestionUpdate,
   RegisterRequest,
   SubjectsResponse,
+  SubmissionCreate,
+  SubmissionOut,
   User,
   UserListParams,
   UserListResponse,
-  PaginatedResponse,
-  ExamScheduleCreate,
-  ExamScheduleUpdate,
-  ExamSchedulePaginationOut
 } from '../types';
 import { logger } from '../utils/logger';
 
@@ -259,6 +261,17 @@ class ApiService {
     return response.data;
   }
 
+  async getAvailableExamSchedulesForStudents(params?: {
+    skip?: number;
+    limit?: number;
+  }): Promise<ExamSchedulePaginationOut> {
+    const response = await this.api.get<ExamSchedulePaginationOut>(
+      '/exam_schedules/student/available',
+      { params }
+    );
+    return response.data;
+  }
+
   async updateExamSchedule(
     scheduleId: number,
     data: ExamScheduleUpdate
@@ -283,6 +296,52 @@ class ApiService {
     const response = await this.api.delete<{ success: boolean }>(
       `/exam_schedules/${scheduleId}`
     );
+    return response.data;
+  }
+
+  async getExamScheduleById(id: number): Promise<{ data: ExamSchedule }> {
+    const response = await this.api.get(`/exam_schedules/${id}`);
+    return { data: response.data };
+  }
+
+  async getExamScheduleWithExam(id: number): Promise<{
+    schedule: ExamSchedule;
+    exam: any;
+  }> {
+    const response = await this.api.get(`/exam_schedules/${id}/with-exam`);
+    return response.data;
+  }
+
+  // Submission methods
+  async startExamSubmission(
+    examScheduleId: number
+  ): Promise<{ data: SubmissionOut }> {
+    const response = await this.api.post(
+      `/submissions/start?exam_schedule_id=${examScheduleId}`
+    );
+    return response.data;
+  }
+
+  async getSubmissionExamData(submissionId: number): Promise<{
+    submission: SubmissionOut;
+    exam_schedule: ExamSchedule;
+    exam: any;
+  }> {
+    const response = await this.api.get(
+      `/submissions/${submissionId}/exam-data`
+    );
+    return response.data;
+  }
+
+  async submitExam(
+    submission: SubmissionCreate
+  ): Promise<{ data: SubmissionOut }> {
+    const response = await this.api.post('/submissions/', submission);
+    return response.data;
+  }
+
+  async getMySubmissions(): Promise<{ data: SubmissionOut[] }> {
+    const response = await this.api.get('/submissions/');
     return response.data;
   }
 

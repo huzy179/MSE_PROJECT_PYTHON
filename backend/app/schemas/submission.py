@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class SubmissionCreate(BaseModel):
     exam_schedule_id: int
@@ -9,7 +10,7 @@ class SubmissionOut(BaseModel):
     id: int
     student_id: int
     exam_schedule_id: int
-    submitted_at: str
+    submitted_at: Optional[datetime]
     answers: str
     score: Optional[int]
     is_late: bool

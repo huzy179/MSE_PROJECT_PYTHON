@@ -68,12 +68,94 @@ def list_exam_schedules_with_pagination(
     result["data"] = [ExamScheduleOut.model_validate(s) for s in result["data"]]
     return result
 
+@exam_schedule_router.get("/student/available", response_model=ExamSchedulePaginationOut)
+def get_available_exam_schedules_for_students(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
+):
+    """Get available exam schedules for students (authenticated users only)"""
+    # Students can see active exam schedules
+    result = get_schedules_with_pagination(db, skip=skip, limit=limit, is_active=True)
+    result["data"] = [ExamScheduleOut.model_validate(s) for s in result["data"]]
+    return result
+
 @exam_schedule_router.get("/{schedule_id}", response_model=ExamScheduleOut)
-def get_exam_schedule(schedule_id: int, db: Session = Depends(get_db)):
+def get_exam_schedule(
+    schedule_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency)
+):
+    """Get exam schedule by ID (authenticated users only)"""
     schedule = get_schedule_by_id(db, schedule_id)
     if not schedule:
         raise HTTPException(status_code=404, detail="Exam schedule not found")
     return schedule
+
+
+@exam_schedule_router.get("/{schedule_id}/with-exam")
+def get_exam_schedule_with_exam(
+    schedule_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency)
+):
+    """Get exam schedule with exam details for students"""
+    from ...models.exam_schedule import ExamSchedule
+    from ...models.exam import Exam, ExamQuestion
+    from ...models.question import Question
+
+    # Get exam schedule with exam
+    schedule = db.query(ExamSchedule).filter(ExamSchedule.id == schedule_id).first()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Exam schedule not found")
+
+    # Get exam with questions
+    exam = db.query(Exam).filter(Exam.id == schedule.exam_id).first()
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found")
+
+    # Get questions for this exam
+    exam_questions = db.query(ExamQuestion).filter(
+        ExamQuestion.exam_id == exam.id
+    ).order_by(ExamQuestion.question_order).all()
+
+    questions = []
+    for eq in exam_questions:
+        question = db.query(Question).filter(Question.id == eq.question_id).first()
+        if question:
+            questions.append({
+                "id": question.id,
+                "content": question.content,
+                "content_img": question.content_img,
+                "choiceA": question.choiceA,
+                "choiceB": question.choiceB,
+                "choiceC": question.choiceC,
+                "choiceD": question.choiceD,
+                "answer": question.answer,
+                "mark": question.mark,
+                "unit": question.unit,
+                "subject": question.subject,
+                "question_order": eq.question_order
+            })
+
+    return {
+        "schedule": {
+            "id": schedule.id,
+            "title": schedule.title,
+            "description": schedule.description,
+            "exam_id": schedule.exam_id,
+            "start_time": schedule.start_time,
+            "end_time": schedule.end_time,
+            "is_active": schedule.is_active
+        },
+        "exam": {
+            "id": exam.id,
+            "title": exam.title,
+            "description": exam.description,
+            "questions": questions
+        }
+    }
 
 @exam_schedule_router.put("/{schedule_id}", response_model=ExamScheduleOut)
 def update_exam_schedule(

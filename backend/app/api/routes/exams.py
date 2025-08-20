@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session
 from ...core.constants import UserRole
 from ...core.security import security
 from ...core.permissions import check_exam_management_permission
+from ...models.exam_schedule import ExamSchedule
+from ...schemas.exam_schedule import ExamScheduleOut
+from datetime import datetime, timedelta
 from ...db.database import get_db
 from ...schemas.exam import (
     ExamCreate,
@@ -326,3 +329,56 @@ def restore_exam_endpoint(
         )
 
     return MessageResponse(message="Exam restored successfully")
+
+
+@router.post("/{exam_id}/start", response_model=BaseResponse[ExamScheduleOut])
+def start_exam_for_student(
+    exam_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Start exam for student - creates exam schedule if not exists"""
+
+    # Check if exam exists
+    exam = get_exam_by_id(db, exam_id)
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found")
+
+    # Check if there's already an active exam schedule for this exam
+    existing_schedule = db.query(ExamSchedule).filter(
+        ExamSchedule.exam_id == exam_id,
+        ExamSchedule.is_active == True
+    ).first()
+
+    if existing_schedule:
+        # Check if it's still within time
+        now = datetime.now()
+        if existing_schedule.start_time <= now <= existing_schedule.end_time:
+            return {"data": ExamScheduleOut.model_validate(existing_schedule)}
+        elif now > existing_schedule.end_time:
+            raise HTTPException(
+                status_code=400,
+                detail="Exam time has expired"
+            )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Exam will start at {existing_schedule.start_time.strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+
+    # Create new exam schedule
+    now = datetime.now()
+    exam_schedule = ExamSchedule(
+        title=f"Bài thi: {exam.title}",
+        description=f"Bài thi {exam.title} - Thời gian: 60 phút",
+        exam_id=exam_id,
+        start_time=now,
+        end_time=now + timedelta(minutes=60),  # 60 minutes duration
+        is_active=True
+    )
+
+    db.add(exam_schedule)
+    db.commit()
+    db.refresh(exam_schedule)
+
+    return {"data": ExamScheduleOut.model_validate(exam_schedule)}

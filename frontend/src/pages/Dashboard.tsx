@@ -1,6 +1,8 @@
 import React from 'react';
-import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import StudentDashboard from '../components/StudentDashboard';
+import { USER_ROLES } from '../constants/roles';
+import { useAuth } from '../hooks/useAuth';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -11,6 +13,43 @@ const Dashboard: React.FC = () => {
     navigate('/import');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // If user is a student, show student dashboard
+  if (user?.role === USER_ROLES.STUDENT) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Welcome Section for Students */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-2xl">
+                {user?.username.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Dashboard Học sinh
+              </h1>
+              <p className="text-lg text-gray-600">
+                Chào mừng bạn trở lại,{' '}
+                <span className="font-semibold text-blue-600">
+                  {user.username}
+                </span>
+                !
+              </p>
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border-l-4 border-blue-500">
+            <p className="text-gray-700">
+              Xem danh sách bài thi và kết quả của bạn bên dưới.
+            </p>
+          </div>
+        </div>
+
+        <StudentDashboard />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">

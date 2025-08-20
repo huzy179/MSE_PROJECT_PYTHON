@@ -8,11 +8,12 @@ import AuthLayout from '../layouts/AuthLayout';
 import MainLayout from '../layouts/MainLayout';
 import Dashboard from '../pages/Dashboard';
 import Exams from '../pages/Exams';
+import ExamScheduleList from '../pages/ExamScheduleList';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Questions from '../pages/Questions';
 import Register from '../pages/Register';
-import ExamScheduleList from "../pages/ExamScheduleList";
+import StudentExam from '../pages/StudentExam';
 
 import { Users } from '../pages/Users';
 
@@ -99,7 +100,7 @@ const AppRoutes: React.FC = () => {
           </RoleGuard>
         }
       />
-      
+
       {/* Exam Schedule management - teacher and admin only */}
       <Route
         path="/exam_schedules"
@@ -108,6 +109,16 @@ const AppRoutes: React.FC = () => {
             <MainLayout>
               <ExamScheduleList />
             </MainLayout>
+          </RoleGuard>
+        }
+      />
+
+      {/* Student Exam Taking - students only */}
+      <Route
+        path="/exam/:examScheduleId"
+        element={
+          <RoleGuard allowedRoles={[USER_ROLES.STUDENT]}>
+            <StudentExam />
           </RoleGuard>
         }
       />

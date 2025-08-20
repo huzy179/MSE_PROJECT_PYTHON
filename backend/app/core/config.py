@@ -23,7 +23,7 @@ class Settings:
     # CORS settings
     BACKEND_CORS_ORIGINS: list = [
         origin.strip()
-        for origin in os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:5174").split(
+        for origin in os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:3000,http://localhost:5174").split(
             ","
         )
     ]
