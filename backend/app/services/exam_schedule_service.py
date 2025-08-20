@@ -33,6 +33,7 @@ class ExamScheduleService:
         limit: int = 10,
         search: Optional[str] = None,
         is_active: Optional[bool] = None,
+        exam_id: Optional[int] = None,
     ) -> Dict[str, Any]:
         query = db.query(ExamSchedule).filter(ExamSchedule.deleted_at.is_(None))
 
@@ -43,6 +44,8 @@ class ExamScheduleService:
             )
         if is_active is not None:
             query = query.filter(ExamSchedule.is_active == is_active)
+        if exam_id is not None:  # Thêm filter này
+            query = query.filter(ExamSchedule.exam_id == exam_id)
 
         total = query.count()
         schedules = query.offset(skip).limit(limit).all()
@@ -119,8 +122,9 @@ def get_schedules_with_pagination(
     limit: int = 10,
     search: Optional[str] = None,
     is_active: Optional[bool] = None,
+    exam_id: Optional[int] = None,
 ) -> Dict[str, Any]:
-    return ExamScheduleService.get_schedules_with_pagination(db, skip, limit, search, is_active)
+    return ExamScheduleService.get_schedules_with_pagination(db, skip, limit, search, is_active, exam_id)
 
 def update_schedule(
     db: Session, schedule_id: int, schedule_in: ExamScheduleUpdate

@@ -44,12 +44,13 @@ def get_exam_schedules(
     size: int = Query(10, ge=1, le=100, description="Number of records per page"),
     search: Optional[str] = Query(None, description="Search in title or description"),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
+    exam_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency), 
 ):
     # check_admin_permission(current_user)
     skip = (page - 1) * size
-    result = get_schedules_with_pagination(db, skip=skip, limit=size, search=search, is_active=is_active)
+    result = get_schedules_with_pagination(db, skip=skip, limit=size, search=search, is_active=is_active, exam_id=exam_id)
     return result
 
 @exam_schedule_router.get("/pagination", response_model=ExamSchedulePaginationOut)

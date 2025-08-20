@@ -68,7 +68,16 @@ const Header: React.FC = () => {
                       Đề thi
                     </Link>
                   )}
-
+                {user &&
+                  (user.role === USER_ROLES.ADMIN ||
+                    user.role === USER_ROLES.TEACHER) && (
+                    <Link
+                      to="/exam_schedules"
+                      className="px-3 py-2 rounded hover:bg-blue-100 text-blue-700 font-medium"
+                    >
+                      Lịch thi
+                    </Link>
+                  )}
                 {/* Users management - admin only */}
                 {user && user.role === USER_ROLES.ADMIN && (
                   <Link
