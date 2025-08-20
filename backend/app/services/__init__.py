@@ -3,6 +3,7 @@ from .question_service import QuestionService
 from .user_service import UserService
 from .exam_service import ExamService
 from .exam_schedule_service import ExamScheduleService
+from .submission_service import create_submission, get_submissions_by_student
 
 __all__ = [
     "create_access_token",
