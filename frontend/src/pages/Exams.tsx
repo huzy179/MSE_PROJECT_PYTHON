@@ -6,6 +6,7 @@ import ExamForm from '../components/ExamForm';
 import ExamDetail from '../components/ExamDetail';
 import ExamGenerator from '../components/ExamGenerator';
 import { USER_ROLES } from '../constants/roles';
+import { Link } from 'react-router-dom';
 
 type ViewMode = 'list' | 'form' | 'detail' | 'generate';
 
@@ -176,6 +177,25 @@ const Exams: React.FC = () => {
                   </svg>
                   Sinh đề thi tự động
                 </button>
+                <Link
+                  to="/exam_schedules"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Tạo lịch thi
+                </Link>
                 {/* <button
                   onClick={handleCreateExam}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
