@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from ...core.constants import UserRole
 from ...core.security import security
+from ...core.permissions import check_exam_management_permission
 from ...db.database import get_db
 from ...services.auth import get_current_user
 from ...schemas.exam_schedule import ExamScheduleCreate, ExamScheduleOut, ExamScheduleUpdate, ExamSchedulePaginationOut
@@ -26,15 +27,16 @@ def get_current_user_dependency(
     """Dependency to get current user from token"""
     return get_current_user(db, credentials.credentials)
 
-def check_admin_permission(current_user):
-    if current_user.role not in [UserRole.TEACHER, UserRole.ADMIN]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only teachers and admins can access this resource",
-        )
+
 
 @exam_schedule_router.post("/", response_model=ExamScheduleOut, status_code=status.HTTP_201_CREATED)
-def create_exam_schedule(schedule_in: ExamScheduleCreate, db: Session = Depends(get_db)):
+def create_exam_schedule(
+    schedule_in: ExamScheduleCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency)
+):
+    """Create exam schedule (teacher/admin only)"""
+    check_exam_management_permission(current_user)
     return create_schedule(db, schedule_in)
 
 
@@ -48,7 +50,8 @@ def get_exam_schedules(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency), 
 ):
-    # check_admin_permission(current_user)
+    """Get exam schedules with pagination (teacher/admin only)"""
+    check_exam_management_permission(current_user)
     skip = (page - 1) * size
     result = get_schedules_with_pagination(db, skip=skip, limit=size, search=search, is_active=is_active, exam_id=exam_id)
     return result

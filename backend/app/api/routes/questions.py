@@ -16,6 +16,11 @@ from sqlalchemy.orm import Session
 
 from ...core.constants import UserRole
 from ...core.security import security
+from ...core.permissions import (
+    check_question_edit_permission,
+    check_question_import_permission,
+    check_question_view_permission,
+)
 from ...db.database import get_db
 from ...schemas.question import QuestionCreate, QuestionOut, QuestionUpdate
 from ...schemas.user import BaseResponse, MessageResponse, PaginatedResponse
@@ -42,20 +47,17 @@ def get_current_user_dependency(
     return get_current_user(db, credentials.credentials)
 
 
-def check_teacher_or_admin_permission(current_user):
-    """Check if user is teacher or admin"""
-    if current_user.role not in [UserRole.TEACHER, UserRole.ADMIN]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only teachers and admins can access this resource",
-        )
+
 
 
 @router.post("/import_file")
-async def read_docx(file: UploadFile = File(...), user: str = Form(...)):
-    user_data = json.loads(user)
-
-    print(user_data)
+async def read_docx(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency)
+):
+    """Import questions from file (Admin/Teacher/Importer only)"""
+    check_question_import_permission(current_user)
 
     # Create temporary file to upload
     contents = await file.read()
@@ -67,12 +69,12 @@ async def read_docx(file: UploadFile = File(...), user: str = Form(...)):
     listQuest = reading_file(tmp_path)
 
     for item in listQuest:
-        item["importer"] = int(user_data["id"])
+        item["importer"] = current_user.id
 
     result = import_data(listQuest)
 
     for item in listQuest:
-        item["importer"] = user_data["username"]
+        item["importer"] = current_user.username
 
     if len(listQuest) == 0:
         return {
@@ -98,8 +100,8 @@ def get_questions(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency),
 ):
-    """Get questions with pagination (Teacher/Admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    """Get questions with pagination (Admin/Teacher/Editor/Importer only)"""
+    check_question_view_permission(current_user)
 
     skip = (page - 1) * size
     result = get_questions_with_pagination(
@@ -114,8 +116,8 @@ def create_new_question(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency),
 ):
-    """Create a new question (Teacher/Admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    """Create a new question (Admin/Teacher/Editor only)"""
+    check_question_edit_permission(current_user)
 
     db_question = create_question(db, question, current_user.id)
     return {"data": db_question}
@@ -127,8 +129,8 @@ def get_question_detail(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency),
 ):
-    """Get question by ID (Teacher/Admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    """Get question by ID (Admin/Teacher/Editor/Importer only)"""
+    check_question_view_permission(current_user)
 
     question = get_question_by_id(db, question_id)
     if not question:
@@ -145,8 +147,8 @@ def update_question_endpoint(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency),
 ):
-    """Update a question (Teacher/Admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    """Update a question (Admin/Teacher/Editor only)"""
+    check_question_edit_permission(current_user)
 
     db_question = update_question(db, question_id, question, current_user.id)
     if not db_question:
@@ -162,8 +164,8 @@ def delete_question_endpoint(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency),
 ):
-    """Delete a question (Teacher/Admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    """Delete a question (Admin/Teacher/Editor only)"""
+    check_question_edit_permission(current_user)
 
     success = delete_question(db, question_id)
     if not success:
@@ -178,8 +180,8 @@ def get_subjects_list(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency),
 ):
-    """Get all subjects (Teacher/Admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    """Get all subjects (Admin/Teacher/Editor/Importer only)"""
+    check_question_view_permission(current_user)
 
     subjects = get_subjects(db)
     return {"data": subjects}

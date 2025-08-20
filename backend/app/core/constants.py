@@ -9,11 +9,13 @@ class UserRole:
     ADMIN = "admin"
     TEACHER = "teacher"
     STUDENT = "student"
+    EDITOR = "editor"
+    IMPORTER = "importer"
 
     @classmethod
     def all_roles(cls):
         """Get all available roles"""
-        return [cls.ADMIN, cls.TEACHER, cls.STUDENT]
+        return [cls.ADMIN, cls.TEACHER, cls.STUDENT, cls.EDITOR, cls.IMPORTER]
 
     @classmethod
     def is_valid_role(cls, role: str):
@@ -26,4 +28,6 @@ ROLE_DESCRIPTIONS = {
     UserRole.ADMIN: "Administrator - Full system access",
     UserRole.TEACHER: "Teacher - Can manage courses and students",
     UserRole.STUDENT: "Student - Can access courses and assignments",
+    UserRole.EDITOR: "Editor - Can edit questions and view lists",
+    UserRole.IMPORTER: "Importer - Can import questions and view lists",
 }

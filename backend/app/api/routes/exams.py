@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from ...core.constants import UserRole
 from ...core.security import security
+from ...core.permissions import check_exam_management_permission
 from ...db.database import get_db
 from ...schemas.exam import (
     ExamCreate,
@@ -41,13 +42,7 @@ def get_current_user_dependency(
     return get_current_user(db, credentials.credentials)
 
 
-def check_teacher_or_admin_permission(current_user):
-    """Check if user is teacher or admin"""
-    if current_user.role not in [UserRole.TEACHER, UserRole.ADMIN]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only teachers and admins can access this resource",
-        )
+
 
 
 @router.post("/", response_model=ExamOut, status_code=status.HTTP_201_CREATED)
@@ -57,7 +52,7 @@ def create_new_exam(
     current_user=Depends(get_current_user_dependency),
 ):
     """Create a new exam (teacher/admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    check_exam_management_permission(current_user)
 
     # Check if exam code already exists
     existing_exam = get_exam_by_code(db, exam.code)
@@ -77,7 +72,7 @@ def generate_exam(
     current_user=Depends(get_current_user_dependency),
 ):
     """Generate a new exam from available questions (teacher/admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    check_exam_management_permission(current_user)
 
     # Check if exam code already exists
     existing_exam = get_exam_by_code(db, exam_request.code)
@@ -111,7 +106,7 @@ def get_exams_list(
     current_user=Depends(get_current_user_dependency),
 ):
     """Get list of exams with pagination (teacher/admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    check_exam_management_permission(current_user)
 
     # If not admin, only show exams created by current user
     if current_user.role != UserRole.ADMIN:
@@ -151,7 +146,7 @@ def get_available_subjects(
     current_user=Depends(get_current_user_dependency),
 ):
     """Get list of available subjects (teacher/admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    check_exam_management_permission(current_user)
     return get_subjects(db)
 
 
@@ -162,7 +157,7 @@ def get_exam_detail(
     current_user=Depends(get_current_user_dependency),
 ):
     """Get exam details with questions (teacher/admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    check_exam_management_permission(current_user)
 
     exam = get_exam_with_questions(db, exam_id)
     if not exam:
@@ -242,7 +237,7 @@ def update_exam_endpoint(
     current_user=Depends(get_current_user_dependency),
 ):
     """Update exam (teacher/admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    check_exam_management_permission(current_user)
 
     exam = get_exam_by_id(db, exam_id)
     if not exam:
@@ -284,7 +279,7 @@ def delete_exam(
     current_user=Depends(get_current_user_dependency),
 ):
     """Soft delete exam (teacher/admin only)"""
-    check_teacher_or_admin_permission(current_user)
+    check_exam_management_permission(current_user)
 
     exam = get_exam_by_id(db, exam_id)
     if not exam:

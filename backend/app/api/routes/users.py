@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from ...core.constants import UserRole
 from ...core.security import security
+from ...core.permissions import check_user_management_permission, check_own_resource_or_admin
 from ...db.database import get_db
 from ...schemas.user import BaseResponse, MessageResponse, PaginatedResponse, UserOut
 from ...services.auth import get_current_user
@@ -37,11 +38,7 @@ def get_all_users(
 ):
     """Get all users with pagination (admin only)"""
     # Check if current user is admin
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin can view all users",
-        )
+    check_user_management_permission(current_user)
 
     # Calculate skip based on page and size
     skip = (page - 1) * size
@@ -67,10 +64,7 @@ def soft_delete_user_endpoint(
 ):
     """Soft delete a user (admin only)"""
     # Check if current user is admin
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only admin can delete users"
-        )
+    check_user_management_permission(current_user)
 
     # Check if user exists
     user_to_delete = get_user_by_id(db, user_id)
@@ -105,11 +99,7 @@ def get_user_by_id_endpoint(
 ):
     """Get user by ID (admin only or own profile)"""
     # Allow users to view their own profile, admin can view any profile
-    if current_user.role != UserRole.ADMIN and current_user.id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only view your own profile",
-        )
+    check_own_resource_or_admin(current_user, user_id)
 
     user = get_user_by_id(db, user_id)
     if not user:
@@ -128,11 +118,7 @@ async def restore_user_endpoint(
 ):
     """Restore soft deleted user (admin only)"""
     # Only admin can restore users
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only administrators can restore users",
-        )
+    check_user_management_permission(current_user)
 
     # Check if user exists (including deleted ones)
     user = get_user_by_id(db, user_id, include_deleted=True)
@@ -170,11 +156,7 @@ async def get_deleted_users(
 ):
     """Get deleted users (admin only)"""
     # Only admin can view deleted users
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only administrators can view deleted users",
-        )
+    check_user_management_permission(current_user)
 
     # Get deleted users only
     deleted_users = get_users(db, skip=skip, limit=limit, include_deleted=True)
