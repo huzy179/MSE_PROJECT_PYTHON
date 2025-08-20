@@ -45,6 +45,7 @@ class Exam(Base):
         nullable=False,
     )
     deleted_at = Column(DateTime(timezone=True), nullable=True)  # For soft delete
+    schedules = relationship("ExamSchedule", back_populates="exam")
 
     def __repr__(self):
         return (

@@ -34,7 +34,6 @@ from ...services.exam_service import (
 
 router = APIRouter(prefix="/exams", tags=["exams"])
 
-
 def get_current_user_dependency(
     credentials=Depends(security), db: Session = Depends(get_db)
 ):
