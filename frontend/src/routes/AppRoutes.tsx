@@ -12,6 +12,8 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Questions from '../pages/Questions';
 import Register from '../pages/Register';
+import ExamScheduleList from "../pages/ExamScheduleList";
+
 import { Users } from '../pages/Users';
 
 const AppRoutes: React.FC = () => {
@@ -93,6 +95,18 @@ const AppRoutes: React.FC = () => {
           <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER]}>
             <MainLayout>
               <Exams />
+            </MainLayout>
+          </RoleGuard>
+        }
+      />
+      
+      {/* Exam Schedule management - teacher and admin only */}
+      <Route
+        path="/exam_schedules"
+        element={
+          <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.TEACHER]}>
+            <MainLayout>
+              <ExamScheduleList />
             </MainLayout>
           </RoleGuard>
         }

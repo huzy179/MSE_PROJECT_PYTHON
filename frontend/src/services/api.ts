@@ -8,6 +8,7 @@ import type {
   ExamDetailResponse,
   ExamGenerateRequest,
   ExamListParams,
+  ExamSchedule,
   ExamUpdate,
   LoginRequest,
   Question,
@@ -21,6 +22,10 @@ import type {
   User,
   UserListParams,
   UserListResponse,
+  PaginatedResponse,
+  ExamScheduleCreate,
+  ExamScheduleUpdate,
+  ExamSchedulePaginationOut
 } from '../types';
 import { logger } from '../utils/logger';
 
@@ -220,6 +225,64 @@ class ApiService {
 
   async getExamSubjects(): Promise<string[]> {
     const response = await this.api.get('/exams/subjects');
+    return response.data;
+  }
+
+  async createExamSchedule(data: ExamScheduleCreate): Promise<ExamSchedule> {
+    const response = await this.api.post<ExamSchedule>('/exam_schedules', data);
+    return response.data;
+  }
+
+  async getExamSchedules(params?: {
+    page?: number;
+    size?: number;
+    search?: string;
+    is_active?: boolean;
+  }): Promise<PaginatedResponse<ExamSchedule>> {
+    const response = await this.api.get<PaginatedResponse<ExamSchedule>>(
+      '/exam_schedules',
+      { params }
+    );
+    return response.data;
+  }
+
+  async getExamSchedulesPagination(params?: {
+    skip?: number;
+    limit?: number;
+    search?: string;
+    is_active?: boolean;
+  }): Promise<ExamSchedulePaginationOut> {
+    const response = await this.api.get<ExamSchedulePaginationOut>(
+      '/exam_schedules/pagination',
+      { params }
+    );
+    return response.data;
+  }
+
+  async updateExamSchedule(
+    scheduleId: number,
+    data: ExamScheduleUpdate
+  ): Promise<ExamSchedule> {
+    const response = await this.api.put<ExamSchedule>(
+      `/exam_schedules/${scheduleId}`,
+      data
+    );
+    return response.data;
+  }
+
+  async deactivateExamSchedule(
+    scheduleId: number
+  ): Promise<{ success: boolean }> {
+    const response = await this.api.put<{ success: boolean }>(
+      `/exam_schedules/${scheduleId}/deactivate`
+    );
+    return response.data;
+  }
+
+  async deleteExamSchedule(scheduleId: number): Promise<{ success: boolean }> {
+    const response = await this.api.delete<{ success: boolean }>(
+      `/exam_schedules/${scheduleId}`
+    );
     return response.data;
   }
 
