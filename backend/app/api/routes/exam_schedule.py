@@ -73,7 +73,7 @@ def get_available_exam_schedules_for_students(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user_dependency),
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=100),
+    limit: int = Query(1000, ge=1, le=1000),
 ):
     """Get available exam schedules for students (authenticated users only)"""
     # Students can see active exam schedules
@@ -153,7 +153,8 @@ def get_exam_schedule_with_exam(
             "id": exam.id,
             "title": exam.title,
             "description": exam.description,
-            "questions": questions
+            "questions": questions,
+            "duration": exam.duration
         }
     }
 

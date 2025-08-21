@@ -48,15 +48,29 @@ def start_exam_submission(
     """Start exam - create initial submission (students only)"""
     check_student_permission(current_user)
 
-    # Check if student already has a submission for this exam schedule
+    # Check how many submissions student already has for this exam schedule
     from ...models.submission import Submission
-    existing_submission = db.query(Submission).filter(
+    from ...models.exam_schedule import ExamSchedule
+
+    # Get exam schedule to check max_attempts
+    exam_schedule = db.query(ExamSchedule).filter(ExamSchedule.id == exam_schedule_id).first()
+    if not exam_schedule:
+        raise HTTPException(status_code=404, detail="Exam schedule not found")
+
+    # Count existing submissions
+    submission_count = db.query(Submission).filter(
         Submission.student_id == current_user.id,
         Submission.exam_schedule_id == exam_schedule_id
-    ).first()
+    ).count()
 
-    if existing_submission:
-        return {"data": existing_submission}
+    max_attempts = exam_schedule.max_attempts or 1
+
+    # Check if student has exceeded max attempts
+    if submission_count >= max_attempts:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Maximum attempts ({max_attempts}) exceeded"
+        )
 
     # Create new submission with empty answers
     submission_data = SubmissionCreate(
@@ -76,12 +90,7 @@ def submit_exam(
 ):
     """Submit exam (students only)"""
     check_student_permission(current_user)
-    print(f"🎯 Student {current_user.username} submitting exam:")
-    print(f"   Exam Schedule ID: {submission_in.exam_schedule_id}")
-    print(f"   Answers: {submission_in.answers}")
-
     submission = create_submission(db, current_user.id, submission_in)
-    print(f"   Final Score: {submission.score}")
     return {"data": submission}
 
 @submission_router.get("/", response_model=BaseResponse[List[SubmissionOut]])
@@ -111,7 +120,6 @@ def get_submission_exam_data(
     """Get submission with exam schedule and exam data for taking exam"""
     from ...models.submission import Submission
     from ...models.exam_schedule import ExamSchedule
-    from ...models.exam import Exam
 
     # Get submission
     submission = db.query(Submission).filter(Submission.id == submission_id).first()
@@ -138,3 +146,42 @@ def get_submission_exam_data(
         "exam_schedule": exam_schedule,
         "exam": exam
     }
+
+
+@submission_router.put("/{submission_id}", response_model=BaseResponse[SubmissionOut])
+def update_submission(
+    submission_id: int,
+    answers: dict,  # {"answers": "json_string"}
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_dependency),
+):
+    """Update submission with answers (students only)"""
+    check_student_permission(current_user)
+
+    from ...models.submission import Submission
+
+    # Get submission
+    submission = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+
+    # Check if user owns this submission
+    if submission.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    # Update submission with answers and calculate score
+    submission.answers = answers.get("answers", "[]")
+
+    # Calculate score
+    try:
+        import json
+        from ...services.submission_service import calculate_score
+        answers_data = json.loads(submission.answers)
+        submission.score = calculate_score(db, submission.exam_schedule_id, answers_data)
+    except Exception as e:
+        submission.score = 0.0
+
+    db.commit()
+    db.refresh(submission)
+
+    return {"data": submission}

@@ -17,13 +17,11 @@ def clear_submissions():
     try:
         # Get all submissions
         submissions = db.query(Submission).all()
-        print(f"Found {len(submissions)} submissions to delete")
         
         # Delete all submissions
         db.query(Submission).delete()
         db.commit()
         
-        print("✅ All submissions cleared successfully!")
         
     except Exception as e:
         print(f"❌ Error: {e}")

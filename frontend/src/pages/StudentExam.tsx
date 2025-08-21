@@ -6,7 +6,7 @@ import Loading from '../components/Loading';
 import { useAuthContext } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
 import type { ExamSchedule, Question } from '../types';
-import type { Answer, SubmissionCreate } from '../types/submission';
+import type { Answer } from '../types/submission';
 
 const StudentExam: React.FC = () => {
   const { examScheduleId } = useParams<{ examScheduleId: string }>();
@@ -40,7 +40,6 @@ const StudentExam: React.FC = () => {
       const examScheduleData = await apiService.getExamScheduleWithExam(
         parseInt(examScheduleId!)
       );
-      console.log('Exam schedule data:', examScheduleData);
 
       const { schedule, exam } = examScheduleData;
       if (!schedule) {
@@ -97,8 +96,6 @@ const StudentExam: React.FC = () => {
 
       setCurrentSubmission(submission);
       setExamStarted(true);
-
-      console.log('Exam started with submission:', submission);
     } catch (error: any) {
       console.error('Error starting exam:', error);
       setError(error.response?.data?.detail || 'Không thể bắt đầu bài thi');
@@ -107,19 +104,17 @@ const StudentExam: React.FC = () => {
 
   const handleSubmitExam = async (answers: Answer[]) => {
     try {
-      if (!examSchedule) {
-        throw new Error('Không tìm thấy thông tin lịch thi');
+      if (!examSchedule || !currentSubmission) {
+        throw new Error('Không tìm thấy thông tin lịch thi hoặc submission');
       }
 
       // Convert answers to JSON string
       const answersJson = JSON.stringify(answers);
 
-      const submission: SubmissionCreate = {
-        exam_schedule_id: examSchedule!.id,
+      // Update existing submission instead of creating new one
+      const result = await apiService.updateSubmission(currentSubmission.id, {
         answers: answersJson,
-      };
-
-      const result = await apiService.submitExam(submission);
+      });
       setSubmissionResult(result.data);
 
       toast.success('Nộp bài thành công!');
@@ -135,14 +130,8 @@ const StudentExam: React.FC = () => {
   };
 
   const calculateTimeLimit = (): number => {
-    if (!examSchedule) return 60; // Default 60 minutes
-
-    const startTime = new Date(examSchedule.start_time);
-    const endTime = new Date(examSchedule.end_time);
-    const durationMs = endTime.getTime() - startTime.getTime();
-    const durationMinutes = Math.floor(durationMs / (1000 * 60));
-
-    return durationMinutes;
+    if (!exam || !exam.duration) return 60; // Default 60 minutes
+    return exam.duration; // Duration from exam in minutes
   };
 
   if (loading) {

@@ -6,7 +6,6 @@ import { useAuth } from '../hooks/useAuth';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  console.log('Dashboard user:', user);
   const navigate = useNavigate();
 
   const goToImport = () => {

@@ -21,11 +21,7 @@ def create_submission(db: Session, student_id: int, submission_in: SubmissionCre
         try:
             answers_data = json.loads(submission_in.answers)
             submission.score = calculate_score(db, submission.exam_schedule_id, answers_data)
-            print(f"🎯 Calculated score: {submission.score}")
         except Exception as e:
-            print(f"❌ Error parsing answers: {e}")
-            import traceback
-            traceback.print_exc()
             submission.score = 0.0
     else:
         # Initial submission with empty answers
@@ -41,10 +37,6 @@ def get_submissions_by_student(db: Session, student_id: int):
 def calculate_score(db: Session, exam_schedule_id: int, answers) -> float:
     """Calculate score based on answers"""
     try:
-        print(f"🔍 Calculating score for exam_schedule_id: {exam_schedule_id}")
-        print(f"🔍 Answers received: {answers}")
-        print(f"🔍 Answers type: {type(answers)}")
-
         # Convert answers to dict format if it's a list
         answers_dict = {}
         if isinstance(answers, list):
@@ -56,27 +48,21 @@ def calculate_score(db: Session, exam_schedule_id: int, answers) -> float:
             # Already in correct format: {"64": "A", "65": "C", ...}
             answers_dict = answers
         else:
-            print(f"❌ Unknown answers format: {type(answers)}")
             return 0.0
-
-        print(f"🔍 Converted answers_dict: {answers_dict}")
 
         # Get exam schedule
         exam_schedule = db.query(ExamSchedule).filter(ExamSchedule.id == exam_schedule_id).first()
         if not exam_schedule:
-            print("❌ Exam schedule not found")
             return 0.0
 
         # Get exam
         exam = db.query(Exam).filter(Exam.id == exam_schedule.exam_id).first()
         if not exam:
-            print("❌ Exam not found")
             return 0.0
 
         # Get questions for this exam through exam_questions table
         from ..models.exam import ExamQuestion
         exam_questions = db.query(ExamQuestion).filter(ExamQuestion.exam_id == exam.id).all()
-        print(f"🔍 Found {len(exam_questions)} exam questions")
 
         total_score = 0.0
         total_possible = 0.0
@@ -98,15 +84,8 @@ def calculate_score(db: Session, exam_schedule_id: int, answers) -> float:
             # Check if answer is correct
             if student_answer and student_answer.strip().upper() == question.answer.strip().upper():
                 total_score += question_mark
-                print(f"✅ Question {question.id}: Correct! Student: {student_answer}, Answer: {question.answer}, Mark: {question_mark}")
-            else:
-                print(f"❌ Question {question.id}: Wrong. Student: {student_answer}, Answer: {question.answer}, Mark: {question_mark}")
 
-        print(f"📊 Total Score: {total_score}/{total_possible}")
         return total_score
 
     except Exception as e:
-        print(f"❌ Error calculating score: {e}")
-        import traceback
-        traceback.print_exc()
         return 0.0

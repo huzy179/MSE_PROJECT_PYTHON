@@ -102,7 +102,7 @@ def generate_exam(
 @router.get("/", response_model=PaginatedResponse[ExamOut])
 def get_exams_list(
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    page_size: int = Query(50, ge=1, le=100, description="Items per page"),
     subject: Optional[str] = Query(None, description="Filter by subject"),
     created_by: Optional[int] = Query(None, description="Filter by creator"),
     db: Session = Depends(get_db),

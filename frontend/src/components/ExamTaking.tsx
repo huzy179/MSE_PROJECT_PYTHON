@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Question } from '../types';
 import type { Answer, ExamProgress } from '../types/submission';
 import QuestionDisplay from './QuestionDisplay';
+import toast from 'react-hot-toast';
 
 interface ExamTakingProps {
   examScheduleId: number;
@@ -60,6 +61,43 @@ const ExamTaking: React.FC<ExamTakingProps> = ({
     },
     []
   );
+
+    // Handle focus lost (click ra ngoài) => trừ 30% thời gian
+  useEffect(() => {
+    const handleBlur = () => {
+      setTimeRemaining((prev) => {
+        const newTime = Math.floor(prev - prev * 0.3);
+        return newTime > 0 ? newTime : 0;
+      });
+    };
+
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, []);
+
+    useEffect(() => {
+    const handleBlur = () => {
+      setTimeRemaining((prev) => {
+        const newTime = Math.floor(prev - prev * 0.3);
+        toast.error("⏱️ Bạn vừa bị trừ 30% thời gian vì thoát ra ngoài!");
+        return newTime > 0 ? newTime : 0;
+      });
+    };
+
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, []);
+
+    useEffect(() => {
+    toast("⚠️ Lưu ý: Nếu thoát ra ngoài, bạn sẽ bị trừ 30% thời gian còn lại!");
+  }, []);
+
 
   const handleAutoSubmit = async () => {
     if (isSubmitting) return;

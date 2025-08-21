@@ -25,26 +25,18 @@ export const useAuth = () => {
 
   const login = async (data: LoginRequest) => {
     try {
-      console.log('🔵 Starting login process...');
       setIsLoading(true);
       setError(null);
 
-      console.log('🔵 Calling apiService.login...');
       const response = await apiService.login(data);
-      console.log('🔵 Login response received:', response);
 
       // Gọi contextLogin để lưu token và fetch user data
-      console.log('🔵 Calling contextLogin...');
       await contextLogin(response.access_token, response.refresh_token);
-      console.log('🔵 contextLogin completed');
 
       // Thêm delay nhỏ để đảm bảo state được update
-      console.log('🔵 Waiting for state update...');
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      console.log('🔵 Navigating to dashboard...');
       navigate('/dashboard');
-      console.log('🔵 Login process completed successfully');
       return response;
     } catch (err) {
       console.error('🔴 Login error:', err);

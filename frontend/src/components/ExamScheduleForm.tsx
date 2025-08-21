@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { apiService } from '../services/api';
+import type { Exam } from '../types/exam';
 import type {
   ExamSchedule,
   ExamScheduleCreate,
   ExamScheduleUpdate,
 } from '../types/exam_schedule';
-import { apiService } from '../services/api';
-import { useAuth } from '../hooks/useAuth';
-import type { Exam } from '../types/exam';
 
 interface Props {
   initialData?: ExamSchedule;
@@ -40,7 +40,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const res = await apiService.getExams();
+        const res = await apiService.getExams({ page_size: 100 });
         setExams(res.data ?? []);
       } catch {
         setExams([]);
@@ -140,7 +140,7 @@ const ExamScheduleForm: React.FC<Props> = ({ initialData, onSuccess }) => {
           <option value="">-- Chọn kỳ thi --</option>
           {exams.map((exam) => (
             <option key={exam.id} value={exam.id}>
-              {exam.title}
+              {exam.code}
             </option>
           ))}
         </select>

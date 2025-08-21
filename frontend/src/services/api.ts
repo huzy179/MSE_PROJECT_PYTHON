@@ -46,17 +46,11 @@ class ApiService {
     this.api.interceptors.request.use(
       (config) => {
         const access_token = localStorage.getItem('access_token');
-        logger.log(
-          '🟠 API Request interceptor - token:',
-          access_token?.substring(0, 20) + '...'
-        );
         if (access_token) {
           config.headers.Authorization = `Bearer ${access_token}`;
-          logger.log('🟠 API Request interceptor - Authorization header set');
         } else {
           logger.log('🔴 API Request interceptor - No token found');
         }
-        logger.log('🟠 API Request interceptor - URL:', config.url);
         return config;
       },
       (error) => {
@@ -101,12 +95,8 @@ class ApiService {
   }
 
   async getUserById(userId: number): Promise<User> {
-    logger.log('🟠 API: Getting user by ID:', userId);
     try {
       const response = await this.api.get<{ data: User }>(`/users/${userId}`);
-      logger.log('🟠 API: getUserById response:', response);
-      logger.log('🟠 API: getUserById response.data:', response.data);
-      logger.log('🟠 API: getUserById user data:', response.data.data);
       return response.data.data;
     } catch (error) {
       logger.error('🔴 API: Error getting user by ID:', error);
@@ -337,6 +327,17 @@ class ApiService {
     submission: SubmissionCreate
   ): Promise<{ data: SubmissionOut }> {
     const response = await this.api.post('/submissions/', submission);
+    return response.data;
+  }
+
+  async updateSubmission(
+    submissionId: number,
+    data: { answers: string }
+  ): Promise<{ data: SubmissionOut }> {
+    const response = await this.api.put<{ data: SubmissionOut }>(
+      `/submissions/${submissionId}`,
+      data
+    );
     return response.data;
   }
 

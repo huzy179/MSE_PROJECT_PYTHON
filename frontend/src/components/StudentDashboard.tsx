@@ -21,7 +21,9 @@ const StudentDashboard: React.FC = () => {
 
       // Load available exam schedules for students
       const schedulesResponse =
-        await apiService.getAvailableExamSchedulesForStudents();
+        await apiService.getAvailableExamSchedulesForStudents({
+          limit: 1000, // Load nhiều hơn để hiển thị tất cả
+        });
       const allSchedules = schedulesResponse.data || [];
 
       // Filter active schedules
@@ -38,7 +40,6 @@ const StudentDashboard: React.FC = () => {
         const submissionsResponse = await apiService.getMySubmissions();
         setSubmissions(submissionsResponse.data || []);
       } catch (error) {
-        console.log('No submissions found or error loading submissions');
         setSubmissions([]);
       }
     } catch (error: any) {
@@ -50,32 +51,31 @@ const StudentDashboard: React.FC = () => {
   };
 
   const handleStartExam = (examScheduleId: number) => {
-    console.log('Going to exam with schedule ID:', examScheduleId);
     // Navigate to exam page to show exam info first
     navigate(`/exam/${examScheduleId}`);
   };
 
-  const isExamAvailable = (schedule: ExamSchedule): boolean => {
-    const now = new Date();
-    const startTime = new Date(schedule.start_time);
-    const endTime = new Date(schedule.end_time);
-
-    return now >= startTime && now <= endTime;
-  };
-
-  const hasSubmitted = (examScheduleId: number): boolean => {
-    return submissions.some(
+  const getSubmissionCount = (examScheduleId: number): number => {
+    const filteredSubmissions = submissions.filter(
       (submission) => submission.exam_schedule_id === examScheduleId
     );
+    return filteredSubmissions.length;
   };
 
   const getExamStatus = (schedule: ExamSchedule) => {
     const now = new Date();
     const startTime = new Date(schedule.start_time);
     const endTime = new Date(schedule.end_time);
+    const submissionCount = getSubmissionCount(schedule.id);
+    const maxAttempts = schedule.max_attempts || 1;
 
-    if (hasSubmitted(schedule.id)) {
-      return { status: 'submitted', text: 'Đã nộp bài', color: 'green' };
+    // Kiểm tra đã hết lượt làm bài chưa
+    if (submissionCount >= maxAttempts) {
+      return {
+        status: 'completed',
+        text: `Đã làm ${submissionCount}/${maxAttempts} lần`,
+        color: 'green',
+      };
     }
 
     if (now < startTime) {
@@ -109,8 +109,9 @@ const StudentDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {examSchedules.map((schedule) => {
               const status = getExamStatus(schedule);
-              const canTakeExam =
-                status.status === 'available' && !hasSubmitted(schedule.id);
+              const submissionCount = getSubmissionCount(schedule.id);
+              const maxAttempts = schedule.max_attempts || 1;
+              const canTakeExam = status.status === 'available';
 
               return (
                 <div
@@ -150,6 +151,12 @@ const StudentDashboard: React.FC = () => {
                         {new Date(schedule.end_time).toLocaleString()}
                       </span>
                     </div>
+                    <div className="flex justify-between">
+                      <span>Số lần làm:</span>
+                      <span>
+                        {submissionCount}/{maxAttempts}
+                      </span>
+                    </div>
                   </div>
 
                   <button
@@ -164,13 +171,17 @@ const StudentDashboard: React.FC = () => {
                       }
                     `}
                   >
-                    {hasSubmitted(schedule.id)
-                      ? 'Đã nộp bài'
+                    {status.status === 'completed'
+                      ? status.text
                       : canTakeExam
-                        ? 'Vào làm bài'
+                        ? submissionCount > 0
+                          ? `Làm lại (${submissionCount}/${maxAttempts})`
+                          : 'Vào làm bài'
                         : status.status === 'upcoming'
                           ? 'Chưa đến giờ'
-                          : 'Đã hết hạn'}
+                          : status.status === 'ended'
+                            ? 'Đã hết hạn'
+                            : status.text}
                   </button>
                 </div>
               );
