@@ -189,7 +189,7 @@ const ExamDetail: React.FC<ExamDetailProps> = ({ examId, onBack, onEdit }) => {
           </div>
         ) : (
           <div className="space-y-6">
-            {exam.questions.map((question, index) => (
+            {exam.questions.map((question) => (
               <div
                 key={question.id}
                 className="border border-gray-200 rounded-lg p-4"

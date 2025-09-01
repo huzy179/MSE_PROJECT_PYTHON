@@ -44,8 +44,8 @@ const ExamScheduleList: React.FC = () => {
       if (filterActive === 'inactive') params.is_active = false;
       const res = await apiService.getExamSchedules(params);
       setSchedules(res.data);
-      setTotalPages(res.pagination.pages);
-      setTotalItems(res.pagination.total);
+      setTotalPages(Math.ceil(res.total / pageSize));
+      setTotalItems(res.total);
       setCurrentPage(page);
     } catch {
       setSchedules([]);

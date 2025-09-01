@@ -3,7 +3,6 @@ import { toast } from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import ExamTaking from '../components/ExamTaking';
 import Loading from '../components/Loading';
-import { useAuthContext } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
 import type { ExamSchedule, Question } from '../types';
 import type { Answer } from '../types/submission';
@@ -11,7 +10,6 @@ import type { Answer } from '../types/submission';
 const StudentExam: React.FC = () => {
   const { examScheduleId } = useParams<{ examScheduleId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuthContext();
 
   const [examSchedule, setExamSchedule] = useState<ExamSchedule | null>(null);
   const [exam, setExam] = useState<any>(null);

@@ -180,7 +180,7 @@ class ApiService {
   }
 
   // Exam methods
-  async getExams(params?: ExamListParams): Promise<UserListResponse<Exam>> {
+  async getExams(params?: ExamListParams): Promise<PaginatedResponse<Exam>> {
     const response = await this.api.get('/exams', { params });
     return response.data;
   }

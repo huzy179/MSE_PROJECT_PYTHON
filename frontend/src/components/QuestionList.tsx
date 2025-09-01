@@ -11,7 +11,6 @@ interface QuestionListProps {
 
 const QuestionList: React.FC<QuestionListProps> = ({
   onEdit,
-  onDelete,
   refreshTrigger,
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);

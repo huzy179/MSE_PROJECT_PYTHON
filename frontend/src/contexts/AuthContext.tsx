@@ -9,7 +9,6 @@ import React, {
 import type { User } from '../types';
 import { getUserIdFromToken, isTokenExpired } from '../utils/jwt';
 import { apiService } from '../services/api';
-import { logger } from '../utils/logger';
 
 interface AuthContextType {
   user: User | null;

@@ -66,8 +66,8 @@ export const Users: React.FC = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
+  const formatDate = (dateString: string | undefined) => {
+    return new Date(dateString || '').toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

@@ -1,0 +1,46 @@
+services:
+  database:
+    image: postgres:15
+    env_file:
+      - ./backend/.env
+    environment:
+      POSTGRES_DB: ${DB_NAME:-MSE}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mse-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    environment:
+      - DB_HOST=database
+    networks:
+      - mse-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - mse-network
+
+volumes:
+  postgres_data:
+
+networks:
+  mse-network:
+    driver: bridge

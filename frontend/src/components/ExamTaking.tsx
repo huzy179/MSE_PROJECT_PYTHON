@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { Question } from '../types';
 import type { Answer, ExamProgress } from '../types/submission';
 import QuestionDisplay from './QuestionDisplay';
@@ -13,12 +12,10 @@ interface ExamTakingProps {
 }
 
 const ExamTaking: React.FC<ExamTakingProps> = ({
-  examScheduleId,
   questions,
   timeLimit,
   onSubmit,
 }) => {
-  const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [timeRemaining, setTimeRemaining] = useState(timeLimit * 60); // Convert to seconds

@@ -34,9 +34,9 @@ const ExamList: React.FC<ExamListProps> = ({
       setError(null);
       const response = await apiService.getExams(filters);
       setExams(response.data);
-      setTotalPages(response.pagination.pages);
-      setTotalCount(response.pagination.total);
-      setCurrentPage(response.pagination.page);
+      setTotalPages(Math.ceil(response.total / (filters.page_size || 10)));
+      setTotalCount(response.total);
+      setCurrentPage(filters.page || 1);
     } catch (err: any) {
       setError(
         err.response?.data?.detail || 'Có lỗi xảy ra khi tải danh sách đề thi'
